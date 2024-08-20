@@ -9,13 +9,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AnimatedSplash from "react-native-animated-splash-screen";
-import HomeScreen from './views/HomeScreen';
+import HomeScreen from "./views/HomeScreen";
 import LoginScreen from './views/LoginScreen';
 import NewUserScreen from './views/NewUserScreen'
 import NewAirScreen from './views/NewAirScreen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlusButtonWithMenu from './views/PlusButtonWithMenu';
 import { MenuProvider } from 'react-native-popup-menu';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -28,8 +29,10 @@ export default function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
+        console.log('Token:', token); // Verificar si el token está presente
         if (token) {
+          console.log(useState(isLoaded))
           setIsAuthenticated(true); // Si existe un token, el usuario está autenticado
         } else {
           setIsAuthenticated(false); // Si no existe, no está autenticado
@@ -45,6 +48,9 @@ export default function App() {
     checkAuth();
   }, []);
 
+  const LoadingScreen = () => {
+    return null;
+  };
   
   return (
     <MenuProvider>
@@ -60,10 +66,10 @@ export default function App() {
               {isAuthenticated === null ? (
                 // Mientras se verifica la autenticación, no se muestra ninguna pantalla
                 <Stack.Screen
-                  name="Loading"
-                  component={() => null}
-                  options={{ headerShown: false }}
-                />
+                name="Loading"
+                component={LoadingScreen}
+                options={{ headerShown: false }}
+              />
               ) : isAuthenticated ? (
                 // Si está autenticado, mostrar HomeScreen
                 <Stack.Screen
@@ -107,6 +113,23 @@ export default function App() {
                   headerShown: true,
                 }}
               />
+               <Stack.Screen
+                  name="HomeScreen"
+                  component={HomeScreen}
+                  options={{ 
+                    headerBackTitle:"Inicio",
+                    headerShown: true,
+                    headerTitle:"Rosenstein Instalaciones",
+                    headerRight: () => <PlusButtonWithMenu />,
+                    headerSearchBarOptions: {
+                      placeholder: "Clientes",
+                      color: "#161616",
+                      onChangeText: (event) => {
+              
+                      },
+                    },
+                  }}
+                />
 
 
             </Stack.Navigator>

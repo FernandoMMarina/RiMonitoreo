@@ -28,10 +28,13 @@ export default function LoginScreen({ navigation }) {
       });
   
       if (response.status === 200) {
-        await AsyncStorage.setItem('token', "Entro"); // Almacena el token en AsyncStorage
+        console.log("Response data:", response.data.accessToken); // Para ver el contenido completo de la respuesta
+        await AsyncStorage.setItem('token', response.data.accessToken);
+        console.log("Token guardado:", response.data.accessToken);
         navigation.navigate('HomeScreen');
         console.log("Login successful");
-      } else {
+      } 
+      else {
         console.log("Login failed");
         alert("Error en el inicio de sesión. Por favor, verifica tus credenciales.");
       }

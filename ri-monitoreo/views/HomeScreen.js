@@ -8,34 +8,52 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 function HomeScreen({ navigation }) {
-  const [productos, setProductos] = useState([]);
+  const [maquinas, setMaquinas] = useState([]);
   const [cantidad, setCantidad] = useState(0);
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [showScanner, setShowScanner] = useState(false); 
+  const [username, setUsername] = useState('');
 
-  // Funciones para manejar la cantidad y agregar al carrito
-  const handleIncrement = () => setCantidad(cantidad + 1);
-  const handleDecrement = () => cantidad > 0 && setCantidad(cantidad - 1);
-  const handleAddToCart = () => { /* Lógica para agregar al carrito */ };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          const response = await axios.get('http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/products/', {
+          const response = await axios.get('http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/machines', {
             headers: { Authorization: `Bearer ${token}` }
           });
-          setProductos(response.data.data);
+          setMaquinas(response.data.data);
+          console.log(response.data)
         } else {
           console.log('Token no encontrado en AsyncStorage');
         }
       } catch (error) {
-        console.error('Error al obtener los productos:', error);
+        console.error('Error al obtener las maquinas:', error);
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          const response = await axios.get('http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/users/profile', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log("nombre de usuario"+ JSON.stringify( response.data))
+          setUsername(response.data.username);
+        } else {
+          console.log('Token no encontrado en AsyncStorage');
+        }
+      } catch (error) {
+        console.error('Error el profile:', error);
+      }
+    };
+    fetchUser();
   }, []);
 
   useEffect(() => {
@@ -85,39 +103,28 @@ function HomeScreen({ navigation }) {
     }
   };
 
-  const renderProducts = ({ item }) => (
+  const renderMaquinas = ({ item }) => (
     <View style={styles.card}>
       <View style={{ flexDirection: "row" }}>
-        <Image source={{ uri: item.attributes.imageUrl }} style={styles.image} />
+    
+        {/* Detalles de la máquina */}
         <View style={styles.details}>
-          <Text style={styles.title}>{item.attributes.name}</Text>
-          <Text style={styles.stockText}>Stock</Text>
-          <Text style={styles.price}>${item.attributes.price.toString()}</Text>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.stockText}>Último Mantenimiento: {item.lastMaintenance}</Text>
+          <Text style={styles.installationDate}>Fecha de Instalación: {item.installationDate}</Text>
         </View>
-      </View>
-      <View style={{ flexDirection: "row", height: 50 }}>
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity onPress={handleDecrement}>
-            <AntDesign name="minuscircle" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.quantity}>{cantidad}</Text>
-          <TouchableOpacity onPress={handleIncrement}>
-            <AntDesign name="pluscircle" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <Pressable onPress={handleAddToCart} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Agregar</Text>
-        </Pressable>
       </View>
     </View>
   );
+  
 
   const Screen1 = () => (
     <View style={styles.container}>
-      <Text style={{ color: "#FFF", fontSize: 20, marginTop: 30 }}>Busquedas Recientes</Text>
+      <Text style={{ color: "#FFF", fontSize: 20, marginTop: 110 }}>Bienvenido! {username}</Text>
+      <Text style={{ color: "#FFF", fontSize: 20, marginTop: 20 }}>Busquedas Recientes</Text>
       <FlatList
-        data={productos}
-        renderItem={renderProducts}
+        data={maquinas}
+        renderItem={renderMaquinas}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.flatListContent}
       />
@@ -125,7 +132,9 @@ function HomeScreen({ navigation }) {
   );
 
   const Screen2 = () => (
-    <View style={styles.screen2} />
+    <View style={styles.screen2} >
+          <Text style={{Flex:1,marginTop:100,marginLeft:50,fontSize:20,color: "#161616"}}>Nombre de usuario : {username}</Text>
+    </View>
   );
 
   const _renderIcon = (routeName, selectedTab) => {
@@ -165,7 +174,7 @@ function HomeScreen({ navigation }) {
         bgColor="white"
         initialRouteName="Rosenisten Instalaciones - Inicio"
         borderTopLeftRight
-        screenOptions={{headerStatusBarHeight:-156}}
+        screenOptions={{headerStatusBarHeight:0}}
         renderCircle={({ selectedTab, navigate }) => (
           <Animated.View style={styles.btnCircleUp}>
             <TouchableOpacity
@@ -219,7 +228,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   card: {
-    backgroundColor: '#D3C3B9',
+    backgroundColor: '#FFF',
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
@@ -238,6 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 1,
+    color:"#FFF"
   },
   stockText: {
     fontSize: 10,
