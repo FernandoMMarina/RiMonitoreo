@@ -1,9 +1,11 @@
 import React from 'react';
 import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import Constants from 'expo-constants';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+
+import styles from './styles';
 
 export default function LoginScreen({ navigation }) {
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -44,7 +46,6 @@ export default function LoginScreen({ navigation }) {
     }
   };
   
-
   const onSubmit = (data) => {
     handleLogin(data);
   };
@@ -58,7 +59,7 @@ export default function LoginScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Image
           style={styles.tinyLogo}
-          source={require('../logo.png')}
+          source={require('../Login/logo.png')}
         />
         <Text style={{ color: "#FFF", fontSize: 18, margin: 10 }}>Rosenstein Instalaciones</Text>
 
@@ -107,54 +108,3 @@ export default function LoginScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1D1936',
-  },
-  contentContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: Constants.statusBarHeight,
-    paddingHorizontal: 20,
-    padding: 8,
-    backgroundColor: '#1D1936',
-  },
-  errorText: {
-    color: 'red',
-    marginLeft: 20,
-  },
-  input: {
-    width: "80%",
-    backgroundColor: 'white',
-    height: 40,
-    padding: 8,
-    borderRadius: 4,
-    margin: 15,
-  },
-  tinyLogo: {
-    marginTop: 0,
-    width: 200,
-    height: 200,
-  },
-  loginScreenButton: {
-    width: "40%",
-    marginRight: 40,
-    marginLeft: 40,
-    marginTop: 30,
-    paddingTop: 10,
-    paddingBottom: 10,
-    backgroundColor: '#161616',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#161616',
-  },
-  loginText: {
-    color: '#fff',
-    textAlign: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
-  }
-});

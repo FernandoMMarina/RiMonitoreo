@@ -24,6 +24,7 @@
     "react-native-curved-bottom-bar": "^3.3.1",
     "react-native-popup-menu": "^0.16.1",
     "react-native-progress-bar-multi-step": "^0.2.5",
+    "react-native-qrcode-svg": "^6.3.2",
     "react-navigation-header-buttons": "^11.2.1"
   },
   "devDependencies": {
