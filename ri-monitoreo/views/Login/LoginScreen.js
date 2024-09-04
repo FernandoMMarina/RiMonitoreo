@@ -61,7 +61,7 @@ export default function LoginScreen({ navigation }) {
           style={styles.tinyLogo}
           source={require('../Login/logo.png')}
         />
-        <Text style={{ color: "#FFF", fontSize: 18, margin: 10 }}>Rosenstein Instalaciones</Text>
+        <Text style={{ color: "#FFF", fontSize: 28, margin: 10 }}>Rosenstein Instalaciones</Text>
 
         <Controller
           control={control}

@@ -20,6 +20,10 @@ const PlusButtonWithMenu = () => {
             <Ionicons style={{margin:8}} name={"snow-outline"} color="black" size={20}/>
             <Text style={{ padding: 10 }}>Nuevo Aire</Text>
             </MenuOption>
+            <MenuOption style={{flex:1,flexDirection:"row",flexWrap:"wrap"}} onSelect={() => navigation.navigate('NewMaintence')}>
+            <Ionicons style={{margin:8}} name={"clipboard-outline"} color="black" size={20}/>
+            <Text style={{ padding: 10 }}>Nuevo Mantenimiento</Text>
+            </MenuOption>
            
         </MenuOptions>
     </Menu>

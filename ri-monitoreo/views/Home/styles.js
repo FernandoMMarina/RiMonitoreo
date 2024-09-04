@@ -21,6 +21,7 @@ export default StyleSheet.create({
         marginVertical: 8,
         marginHorizontal: 16,
         borderRadius: 8,
+        marginTop:20,
       },
       image: {
         width: 100,
@@ -31,17 +32,17 @@ export default StyleSheet.create({
       details: {
         flex: 1,
       },
-      title: {
+      titleCard: {
         fontSize: 15,
         fontWeight: 'bold',
         marginBottom: 1,
-        color:"#FFF"
+        color:"#161616"
       },
       stockText: {
         fontSize: 10,
         fontWeight: 'bold',
         marginBottom: 2,
-        color: "#197008"
+        color: "#161616"
       },
       quantityContainer: {
         flexDirection: 'row',
@@ -135,10 +136,7 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: '#BFEFFF',
       },
-      screen2: {
-        flex: 1,
-        backgroundColor: '#FFEBCD',
-      }, shawdow: {
+     shawdow: {
         shadowColor: '#DDDDDD',
         shadowOffset: {
           width: 0,
@@ -167,4 +165,83 @@ export default StyleSheet.create({
         color: 'white',
         fontSize: 18,
       }, 
+      screen2: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#1D1936',
+      },
+      profileContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      initialsCircle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: '#FFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      initialsText: {
+        fontSize: 40,
+        color: '#1D1936',
+        fontWeight: 'bold',
+      },
+      usernameText: {
+        fontSize: 20,
+        color: '#FFF',
+      },
+      settingsButton: {
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: '#161616',
+        borderRadius: 5,
+      },
+      settingsText: {
+        color: '#FFF',
+        fontSize: 16,
+      },
+
+      container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#1D1936',
+      },
+      clearButton: {
+        marginLeft:250,
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: '#161616',
+        borderRadius: 5,
+        alignItems: 'center',
+      },
+      clearButtonText: {
+        color: '#FFF',
+        fontSize: 16,
+      },
+      flatListContent: {
+        paddingBottom: 20,
+      },
+      recentSearchHeader: {
+        flexDirection: 'row',  // Para alinear el título y el botón "Limpiar" en la misma fila
+        justifyContent: 'space-between',  // Pone el título a la izquierda y el botón a la derecha
+        alignItems: 'center',
+        marginTop: 40,
+      },
+      title: {
+        color: '#FFF',
+        fontSize: 20,
+        fontWeight: 'bold',
+      },
+      clearButtonText: {
+        color: '#FFF',
+        fontSize: 12,
+        textTransform: 'uppercase',
+        fontWeight: 'bold',
+      },
+      flatListContent: {
+        marginTop: 10,
+      },
 });
