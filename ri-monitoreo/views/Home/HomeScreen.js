@@ -8,6 +8,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import styles from './styles';
 import Constants from 'expo-constants';
 
+const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api';
 
 function HomeScreen({ navigation}) {
   const [maquinas, setMaquinas] = useState([]);
@@ -19,10 +20,9 @@ function HomeScreen({ navigation}) {
   const [recentSearches, setRecentSearches] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [gender, setGender] = useState('');
+  const [role, setRole]= useState('');
 
-
-
- 
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "HomeScreen",
@@ -59,7 +59,7 @@ function HomeScreen({ navigation}) {
         console.log('No se encontró el token');
         return;
       }
-      let url = `http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/users/users?role=client`;
+      let url = `${API_URL}/users/users?role=user`;
       if (text) {
         url += `&name=${text}`;
       }
@@ -81,7 +81,7 @@ function HomeScreen({ navigation}) {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          const response = await axios.get('http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/machines', {
+          const response = await axios.get(`${API_URL}/machines`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setMaquinas(response.data.data);
@@ -96,7 +96,6 @@ function HomeScreen({ navigation}) {
     loadRecentSearches(); // Cargar búsquedas recientes al iniciar
   }, [searchText]);
 
-  
   const filteredClientes = Array.isArray(clientes)
   ? clientes.filter((client) =>
       client.name && client.name.toLowerCase().includes(searchText.toLowerCase())
@@ -129,8 +128,6 @@ const saveSearch = async (machine) => {
 };
 
 
-  
-
   // Cargar búsquedas recientes de AsyncStorage
   const loadRecentSearches = async () => {
     try {
@@ -149,11 +146,14 @@ const saveSearch = async (machine) => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          const response = await axios.get('http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/users/profile', {
+          const response = await axios.get(`${API_URL}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setUsername(response.data.username);
-          setEmail(response.data.email); 
+          setEmail(response.data.email);
+          setGender(response.data.gender); 
+          console.log("ACA"+response.data)
+          setRole(response.data.role);
         } else {
           console.log('Token no encontrado en AsyncStorage');
         }
@@ -235,73 +235,113 @@ const renderRecentSearches = ({ item }) => (
     }
   };
 
+  const fetchClientMachines = async (machineIds) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.error('Token no encontrado');
+        return [];
+      }
+  
+      const machineRequests = machineIds.map(id => axios.get(`${API_URL}/machines/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }));
+  
+      const machineResponses = await Promise.all(machineRequests);
+      const machines = machineResponses.map(response => response.data);
+  
+      // Filtra las máquinas válidas y asegúrate de que tienen las propiedades necesarias
+      return machines.filter(machine => machine && machine._id && machine.name);
+    } catch (error) {
+      console.error('Error al obtener las máquinas del cliente:', error);
+      return [];
+    }
+  };
+  
+  
+  
   
 
   const Screen1 = () => (
-  <View style={styles.container}>
-    <Text style={{ color: "#FFF", fontSize: 30, marginTop: 110, marginLeft: 60 }}>
-      Bienvenido! {username}
-    </Text>
-
-    <View style={{height: 200}}>
-  {clientes.length === 0 ? (
-    <Text style={{ color: "#FFF", fontSize: 18, marginTop: 20 }}>
-      No hay Clientes con ese nombre
-    </Text>
-  ) : (
-    <FlatList
-      data={clientes}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('MachinesList', { machines: item.machines });
-            }}
-          >
-            <View style={styles.card}>
-              <Text style={styles.titleCard}>{item.username}</Text>
-              <Text style={styles.subTitle}>Número de Máquinas: {item.machines.length}</Text>
-            </View>
-          </TouchableOpacity>
-      )}
-      keyExtractor={(item) => item._id.toString()}
-    />
-  )}
-</View>
-
-
-    {/* Contenedor para "Búsquedas Recientes" y "Limpiar" */}
-    <View style={styles.recentSearchHeader}>
-      <Text style={styles.title}>Búsquedas Recientes</Text>
-      <TouchableOpacity onPress={clearSearches}>
-        <Text style={styles.clearButtonText}>LIMPIAR</Text>
-      </TouchableOpacity>
-    </View>
-
-    {recentSearches.length === 0 ? (
-      <Text style={{ color: "#FFF", fontSize: 18, marginTop: 20 }}>
-        No hay búsquedas Recientes
+    <View style={styles.container}>
+      <Text style={{ color: "#FFF", fontSize: 30, marginTop: 110, textAlign: "center" }}>
+        <Text style={{ fontWeight: 'bold' }}>
+          {gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
+        </Text>
+        <Text>
+          {username}
+        </Text>
+        
       </Text>
-    ) : (
-      <FlatList
-        data={recentSearches}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('MachineDetails', { machine: item })}
-          >
-            {console.log("Los datos son : "+ JSON.stringify(item))}
-            <View style={styles.card}>
-              <Text style={styles.titleCard}>{item.name}</Text>
-              <Text style={styles.subTitle}>Último mantenimiento: {item.lastMaintenance}</Text>
-            </View>
-          </TouchableOpacity>
+  
+      <View style={{ height: 200 }}>
+        {clientes.length === 0 ? (
+          <View style={styles.card}>
+            <Text style={{ color: "#161616",fontWeight:"bold", fontSize: 18, marginTop: 0,marginBottom:50 }}>
+              No hay Clientes con ese nombre,
+              realiza otra busqueda..
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={clientes}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={async () => {
+                  if (item.machines && item.machines.length > 0) {
+                    const machineDetails = await fetchClientMachines(item.machines);
+                    navigation.navigate('MachinesList', { machines: machineDetails });
+                  } else {
+                    Alert.alert('No hay máquinas', 'Este cliente no tiene máquinas registradas.');
+                  }
+                }}
+              >
+                <View style={styles.card}>
+                  <Text style={styles.titleCard}>{item.username}</Text>
+                  <Text style={styles.subTitle}>
+                    Número de Máquinas: {item.machines.length}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item._id.toString()}
+          />
         )}
-        keyExtractor={(item) => (item.machineId ? item.machineId.toString() : Math.random().toString())}
-        contentContainerStyle={styles.flatListContent}
-      />
-    )}
-  </View>
-);
-
+      </View>
+  
+      <View style={styles.recentSearchHeader}>
+        <Text style={styles.title}>Búsquedas Recientes</Text>
+        <TouchableOpacity onPress={clearSearches}>
+          <Text style={styles.clearButtonText}>LIMPIAR</Text>
+        </TouchableOpacity>
+      </View>
+  
+      {recentSearches.length === 0 ? (
+        <View style={styles.card}>
+          <Text style={{ color: "#161616",fontWeight:'bold', fontSize: 18, marginTop: 0,marginBottom:50 }}>
+            No hay búsquedas Recientes..
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={recentSearches}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('MachineDetails', { machine: item })}
+            >
+              <View style={styles.card}>
+                <Text style={styles.titleCard}>{item.name}</Text>
+                <Text style={styles.subTitle}>Último mantenimiento: {item.lastMaintenance}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => (item.machineId ? item.machineId.toString() : Math.random().toString())}
+          contentContainerStyle={styles.flatListContent}
+        />
+      )}
+    </View>
+  );
+  
   
   const getInitials = (name) => {
     const names = name.split(' ');
@@ -321,7 +361,7 @@ const renderRecentSearches = ({ item }) => (
           <Text style={styles.usernameText}>{username}</Text>
           <Text style={styles.usernameText}>Nombre de usuario: {username}</Text>
           <Text style={styles.usernameText}>Mail: {email}</Text>
-          <Text style={styles.usernameText}>Contraseña: {email}</Text>
+          <Text style={styles.usernameText}>Contraseña: ****** </Text>
           
         </View>
       </View>

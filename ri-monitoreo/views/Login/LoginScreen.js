@@ -1,26 +1,50 @@
 import React from 'react';
 import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
 import styles from './styles';
+import Constants from 'expo-constants';
+
+const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+
+import * as Notifications from 'expo-notifications';
 
 export default function LoginScreen({ navigation }) {
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
-      username: '',
+      email: '',
       password: ''
     }
   });
 
+  // Nueva función para registrar el token de notificación
+  const registerForPushNotificationsAsync = async () => {
+    let token;
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notifications!');
+      return;
+    }
+
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    return token;
+  };
+
+  // Modificación del handleLogin para incluir el envío del pushToken
   const handleLogin = async (data) => {
     try {
-      const url = "http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api/users/login";
-  
+      const url = `${API_URL}/users/login`;
+      console.log("url completa : " + url)
       const response = await axios.post(url, {
-        username: data.username,
+        email: data.email,
         password: data.password
       }, {
         headers: {
@@ -28,12 +52,23 @@ export default function LoginScreen({ navigation }) {
           'Content-Type': 'application/json',
         }
       });
-  
+
       if (response.status === 200) {
-        console.log("Response data:", response.data.accessToken); // Para ver el contenido completo de la respuesta
-        await AsyncStorage.setItem('token', response.data.accessToken);
-        console.log("Token guardado:", response.data.accessToken);
+        const pushToken = await registerForPushNotificationsAsync(); // Obtén el pushToken
+
+        // Enviar pushToken al backend
+        if (pushToken) {
+          await axios.put(`${API_URL}/users/push-token`, {
+            pushToken: pushToken
+          }, {
+            headers: {
+              Authorization: `Bearer ${response.data.accessToken}` // Agrega el token de autenticación
+            }
+          });
+        }
+
         navigation.navigate('HomeScreen');
+        await AsyncStorage.setItem('token', response.data.accessToken);
         console.log("Login successful");
       } 
       else {
@@ -45,7 +80,7 @@ export default function LoginScreen({ navigation }) {
       alert("Hubo un error al intentar iniciar sesión. Por favor, intenta de nuevo más tarde.");
     }
   };
-  
+
   const onSubmit = (data) => {
     handleLogin(data);
   };
@@ -53,14 +88,11 @@ export default function LoginScreen({ navigation }) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // "padding" para iOS, "height" para Android
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20} // Ajusta según sea necesario
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Image
-          style={styles.tinyLogo}
-          source={require('../Login/logo.png')}
-        />
+        <Image style={styles.tinyLogo} source={require('../Login/logo.png')} />
         <Text style={{ color: "#FFF", fontSize: 28, margin: 10 }}>Rosenstein Instalaciones</Text>
 
         <Controller
@@ -71,11 +103,11 @@ export default function LoginScreen({ navigation }) {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              placeholder="Username"
+              placeholder="Email"
               placeholderTextColor="#666"
             />
           )}
-          name="username"
+          name="email"
           rules={{ required: true }}
         />
         {errors.username && <Text style={styles.errorText}>Username is required</Text>}
@@ -108,3 +140,4 @@ export default function LoginScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
+

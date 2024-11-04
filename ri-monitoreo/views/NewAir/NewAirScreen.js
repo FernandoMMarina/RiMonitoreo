@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 
 import styles from './styles';
 
+
 const tabs = [
   { title: 'Info Cliente', pageNo: 1 },
   { title: 'Primer Aire', pageNo: 2 },

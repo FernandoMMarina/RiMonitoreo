@@ -33,7 +33,10 @@ export default ({ config }) => ({
       apiUrl:
         process.env.NODE_ENV === "production"
           ? "http://ec2-50-16-74-81.compute-1.amazonaws.com:5000/api"
-          : "http://localhost:5000/api"
+          : "http://localhost:5000/api",
+      eas: {
+        projectId: "189830c1-cebf-44db-8a55-581f6004700b"
+      }
     }
   }
 });
