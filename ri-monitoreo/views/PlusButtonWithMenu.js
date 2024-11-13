@@ -28,6 +28,10 @@ const PlusButtonWithMenu = () => {
             <Ionicons style={{margin:8}} name={"notifications-outline"} color="black" size={20}/>
             <Text style={{ padding: 10,fontSize:13 }}>Menu Notificaciones</Text>
             </MenuOption>
+            <MenuOption style={{flex:1,flexDirection:"row",flexWrap:"wrap"}} onSelect={() => navigation.navigate('OrdersList')}>
+            <Ionicons style={{margin:8}} name={"clipboard-outline"} color="black" size={20}/>
+            <Text style={{ padding: 10,fontSize:13 }}>Hoja de Trabajo</Text>
+            </MenuOption>
            
         </MenuOptions>
     </Menu>

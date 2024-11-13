@@ -5,7 +5,7 @@ import { Platform, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api'; // Cambia la URL según sea necesario
+const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api'; // Cambia la URL según sea necesario
 
 const RegisterPushToken = () => {
   const [userId, setUserId] = useState("");

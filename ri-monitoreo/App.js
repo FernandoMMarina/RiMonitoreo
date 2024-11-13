@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Animated,
@@ -6,12 +7,11 @@ import {
   View,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AnimatedSplash from "react-native-animated-splash-screen";
 import { MenuProvider } from 'react-native-popup-menu';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GestureHandlerRootView } from 'react-native-gesture-handler'; // Importa el GestureHandlerRootView
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import HomeScreen from "./views/Home/HomeScreen";
 import LoginScreen from './views/Login/LoginScreen';
@@ -21,22 +21,23 @@ import PlusButtonWithMenu from './views/PlusButtonWithMenu';
 import MachineDetailsScreen from './views/MachineDetails/MachineDetailsScreen';
 import NewMaintence from './views/NewMaintence/NewMaintence';
 import MachinesList from './views/MachineList/MachineList';
-import axios from 'axios';
-const Stack = createNativeStackNavigator();
+import OrdersList from './views/OrdersList/OrdersList.js';
+import NotificationView from './views/NotificationView/NotificationView.js';
+import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
 
+
+import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import NotificationView from './views/NotificationView/NotificationView';
-import RegisterPushToken from './views/NotificationView/RegisterPushToken';
 
-const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api';
+const Stack = createNativeStackNavigator();
+const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userId, setUserId] = useState("");
 
-  // Obtener datos del perfil de usuario
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -65,15 +66,12 @@ export default function App() {
       return;
     }
     const tokenNoti = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log("Notification push token:", tokenNoti); // Muestra el token
-    await sendTokenToBackend(tokenNoti); // Enviar el token al backend
+    console.log("Notification push token:", tokenNoti);
+    await sendTokenToBackend(tokenNoti);
     return tokenNoti;
   };
 
   const sendTokenToBackend = async (tokenNoti) => {
-    console.log('Token de notificación:', tokenNoti);
-    console.log('ID de usuario:', userId);
-
     if (!userId) {
       console.error('El ID del usuario no está definido.');
       return;
@@ -82,13 +80,8 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/users/register-token`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: tokenNoti, // El token obtenido de Expo
-          userId: userId, // El ID del usuario actual
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tokenNoti, userId }),
       });
 
       if (!response.ok) {
@@ -102,19 +95,13 @@ export default function App() {
     }
   };
 
+  // Verifica autenticación y ejecuta la notificación push solo si está autenticado y userId está definido
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
         console.log('Token:', token);
-        if (token) {
-          setIsAuthenticated(true);
-          if (userId) { // Asegúrate de que userId está definido
-            await registerForPushNotificationsAsync(); // Llama a esta función solo si userId está disponible
-          }
-        } else {
-          setIsAuthenticated(false);
-        }
+        setIsAuthenticated(!!token);
       } catch (error) {
         console.error("Error checking auth token", error);
         setIsAuthenticated(false);
@@ -122,13 +109,16 @@ export default function App() {
         setTimeout(() => setIsLoaded(true), 3000);
       }
     };
-
     checkAuth();
-  }, [userId]); // El efecto se ejecuta cuando userId cambia
+  }, []);
 
-  const LoadingScreen = () => {
-    return null;
-  };
+  useEffect(() => {
+    if (isAuthenticated && userId) {
+      registerForPushNotificationsAsync();
+    }
+  }, [isAuthenticated, userId]);
+
+  const LoadingScreen = () => null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -234,11 +224,24 @@ export default function App() {
                   headerBackTitleVisible: false,
                 }}
               />
+              <Stack.Screen
+                name="OrdersList"
+                component={OrdersList}
+                options={{
+                  headerTitle: "Hoja de Trabajo",
+                  headerShown: true,
+                  headerBackTitleVisible: false,
+                }}
+              />
+              <Stack.Screen
+                name="DetallesTrabajo"
+                component={WorkDetailsScreen} // Vista detallada del trabajo
+                options={{ headerTitle: "Detalles del Trabajo" }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </AnimatedSplash>
       </MenuProvider>
-      <RegisterPushToken/>
     </GestureHandlerRootView>
   );
 }
