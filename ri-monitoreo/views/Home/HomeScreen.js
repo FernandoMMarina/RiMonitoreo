@@ -4,7 +4,7 @@ import { CurvedBottomBarExpo } from 'react-native-curved-bottom-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { RNCamera } from 'react-native-camera';
 import styles from './styles';
 import Constants from 'expo-constants';
 
@@ -22,10 +22,12 @@ function HomeScreen({ navigation}) {
   const [searchText, setSearchText] = useState('');
   const [gender, setGender] = useState('');
   const [role, setRole]= useState('');
+  const [machines, setMachines] = useState([]);
+  const [idCliente, setIdCliente] = useState([]);
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "HomeScreen",
+      headerTitle: "Rosenstein Instalaciones",
       headerSearchBarOptions: {
         placeholder: "Clientes",
         color: "#161616",
@@ -42,6 +44,8 @@ function HomeScreen({ navigation}) {
       },
     });
   }, [navigation]);
+
+  
   
   useEffect(() => {
     if (searchText.trim() !== "") {
@@ -102,8 +106,7 @@ function HomeScreen({ navigation}) {
     )
   : [];
 
-  // Guardar búsqueda en AsyncStorage
- 
+  // Guardar búsqueda en AsyncStorag
 const saveSearch = async (machine) => {
   try {
     const storedSearches = await AsyncStorage.getItem('recentSearches');
@@ -129,7 +132,7 @@ const saveSearch = async (machine) => {
 
 
   // Cargar búsquedas recientes de AsyncStorage
-  const loadRecentSearches = async () => {
+const loadRecentSearches = async () => {
     try {
       const storedSearches = await AsyncStorage.getItem('recentSearches');
       if (storedSearches) {
@@ -152,7 +155,8 @@ const saveSearch = async (machine) => {
           setUsername(response.data.username);
           setEmail(response.data.email);
           setGender(response.data.gender); 
-          console.log("ACA"+response.data)
+          console.log("ACA"+JSON.stringify(response.data))
+          setIdCliente(response.data.id)
           setRole(response.data.role);
         } else {
           console.log('Token no encontrado en AsyncStorage');
@@ -172,18 +176,16 @@ const saveSearch = async (machine) => {
     })();
   }, []);
 
-  // Manejar la lectura del código QR
-  const handleBarCodeScanned = async ({ type, data }) => {
-    setScanned(true); // Detener el escáner hasta que lo reiniciemos
+const handleBarCodeScanned = async ({ data }) => {
+    setScanned(true);
     try {
       const machineInfo = JSON.parse(data);
       const machineId = machineInfo._id;
-      const machine = await searchMachineById(machineId); // Buscar la máquina por ID
-      // Guardar búsqueda en AsyncStorage
-      saveSearch({ 
+      const machine = await searchMachineById(machineId);
+      saveSearch({
         id: machine._id,
         name: machine.name,
-        lastMaintenance: machine.lastMaintenance 
+        lastMaintenance: machine.lastMaintenance,
       });
     } catch (error) {
       console.error("Error parsing QR code data:", error);
@@ -192,7 +194,7 @@ const saveSearch = async (machine) => {
   };
 
   // Buscar la máquina por ID
-  const searchMachineById = async (id) => {
+const searchMachineById = async (id) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.get(`${apiUrl}/machines/${id}`, {
@@ -225,8 +227,7 @@ const renderRecentSearches = ({ item }) => (
   </View>
 );
 
-
-  const clearSearches = async () => {
+const clearSearches = async () => {
     try {
       await AsyncStorage.removeItem('recentSearches');
       setRecentSearches([]); // Limpiar el estado de las búsquedas recientes
@@ -235,7 +236,7 @@ const renderRecentSearches = ({ item }) => (
     }
   };
 
-  const fetchClientMachines = async (machineIds) => {
+const fetchClientMachines = async (machineIds) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
@@ -259,20 +260,32 @@ const renderRecentSearches = ({ item }) => (
   };
   
   
-  
-  
 
   const Screen1 = () => (
     <View style={styles.container}>
-      <Text style={{ color: "#FFF", fontSize: 30, marginTop: 110, textAlign: "center" }}>
+      <Text style={styles.titleCScreen1}>
         <Text style={{ fontWeight: 'bold' }}>
           {gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
         </Text>
         <Text>
           {username}
         </Text>
-        
       </Text>
+
+      <View>
+  <TouchableOpacity
+    onPress={() => {
+      navigation.navigate('ClientMachines', { clientId: idCliente}); 
+    }}
+    style={{ padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5 }} // Opcional, para mayor visibilidad
+  >
+    <Text style={{ fontSize: 16, color: '#333' }}>
+      Ver máquinas del cliente
+    </Text>
+  </TouchableOpacity>
+</View>
+
+
   
       <View style={{ height: 200 }}>
         {clientes.length === 0 ? (
@@ -404,14 +417,14 @@ const renderRecentSearches = ({ item }) => (
         bgColor="white"
         initialRouteName="Rosenisten Instalaciones - Inicio"
         borderTopLeftRight
-        screenOptions={{ headerStatusBarHeight: 0 }}
+        screenOptions={{ headerStatusBarHeight:-80 }} //Aca se esconde el header.
         renderCircle={({ selectedTab, navigate }) => (
           <Animated.View style={styles.btnCircleUp}>
             <TouchableOpacity
               style={styles.circleButton}
               onPress={() => {
                 setShowScanner(!showScanner);
-                setScanned(false); // Reiniciar el estado al abrir el escáner
+                setScanned(false); // Reiniciar el estado al abrir el escáner.
               }}
             >
               <Ionicons name={'qr-code-outline'} color="#1D1936" size={25} />
@@ -432,11 +445,12 @@ const renderRecentSearches = ({ item }) => (
         />
       </CurvedBottomBarExpo.Navigator>
 
-      {showScanner && hasPermission && (
+      {showScanner && (
         <View style={styles.scannerContainer}>
-          <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          <RNCamera
             style={StyleSheet.absoluteFillObject}
+            onBarCodeRead={scanned ? undefined : handleBarCodeScanned}
+            captureAudio={false}
           />
           <TouchableOpacity style={styles.closeButton} onPress={() => setShowScanner(false)}>
             <Ionicons name="close-circle-outline" size={50} color="white" />
@@ -444,8 +458,17 @@ const renderRecentSearches = ({ item }) => (
         </View>
       )}
 
-      {hasPermission === null && <Text>Solicitando permiso para usar la cámara</Text>}
-      {hasPermission === false && <Text>No tienes acceso a la cámara</Text>}
+{hasPermission === null && <Text>Solicitando permiso para usar la cámara...</Text>}
+{hasPermission === false && (
+  <Text>No tienes permiso para usar la cámara. Por favor, habilítalo en configuraciones.</Text>
+)}
+{hasPermission === true && (
+  <RNCamera
+    style={StyleSheet.absoluteFillObject}
+    onBarCodeRead={scanned ? undefined : handleBarCodeScanned}
+    captureAudio={false}
+  />
+)}
     </View>
   );
 }

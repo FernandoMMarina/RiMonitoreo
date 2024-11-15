@@ -21,6 +21,7 @@ const machineTypeImages = {
 };
 
 const MachinesList = ({ route }) => {
+  debugger;
   const { machines } = route.params;
   const navigation = useNavigation();
   const [selectedCard, setSelectedCard] = useState(null);
@@ -35,6 +36,7 @@ const MachinesList = ({ route }) => {
       const response = await axios.get(`${API_URL}/machines/${machineId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error('Error al obtener detalles de la máquina:', error);

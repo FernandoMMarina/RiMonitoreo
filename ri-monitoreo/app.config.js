@@ -13,7 +13,7 @@ export default ({ config }) => ({
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.tuapp.ios",
+      bundleIdentifier: "com.riapp.ios", // Reemplázalo por un identificador único
       infoPlist: {
         UIBackgroundModes: ["fetch", "remote-notification"],
         NSUserTrackingUsageDescription:
@@ -21,6 +21,7 @@ export default ({ config }) => ({
       }
     },
     android: {
+      package: "com.appri.android", // Agrega aquí el identificador de tu paquete Android
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"

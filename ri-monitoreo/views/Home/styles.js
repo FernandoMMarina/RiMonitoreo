@@ -132,10 +132,7 @@ export default StyleSheet.create({
         width: 30,
         height: 30,
       },
-      screen1: {
-        flex: 1,
-        backgroundColor: '#BFEFFF',
-      },
+
      shawdow: {
         shadowColor: '#DDDDDD',
         shadowOffset: {
@@ -244,4 +241,14 @@ export default StyleSheet.create({
       flatListContent: {
         marginTop: 10,
       },
+
+      titleCScreen1:{
+        color:"#FFF",
+        fontSize:30,
+        marginTop:Platform.select({
+          ios:160,
+          android:30
+        }),
+        textAlign:"center"
+      }
 });

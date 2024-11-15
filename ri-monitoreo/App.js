@@ -24,6 +24,7 @@ import MachinesList from './views/MachineList/MachineList';
 import OrdersList from './views/OrdersList/OrdersList.js';
 import NotificationView from './views/NotificationView/NotificationView.js';
 import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
+import ClientMachines from './views/ClientMachines/ClientMachines.js';
 
 
 import axios from 'axios';
@@ -125,7 +126,7 @@ export default function App() {
       <MenuProvider>
         <AnimatedSplash
           isLoaded={isLoaded}
-          logoImage={require('./views/Login/logo.png')}
+          logoImage={require('./assets/logo.png')}
           backgroundColor={"#1D1936"}
           logoHeight={150}
           logoWidth={150}
@@ -144,7 +145,7 @@ export default function App() {
                   component={HomeScreen}
                   options={{
                     headerBackTitle: "Inicio",
-                    headerShown: true,
+                    headerShown: false,
                     headerBackVisible: false,
                     headerBackTitleVisible: false,
                     headerTitle: "Rosenstein Instalaciones",
@@ -238,6 +239,11 @@ export default function App() {
                 component={WorkDetailsScreen} // Vista detallada del trabajo
                 options={{ headerTitle: "Detalles del Trabajo" }}
               />
+              <Stack.Screen 
+              name="ClientMachines" 
+              component={ClientMachines}
+              options={{ title: 'Máquinas del Cliente' }}
+               />
             </Stack.Navigator>
           </NavigationContainer>
         </AnimatedSplash>

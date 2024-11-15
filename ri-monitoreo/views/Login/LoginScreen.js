@@ -92,7 +92,8 @@ export default function LoginScreen({ navigation }) {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Image style={styles.tinyLogo} source={require('../Login/logo.png')} />
+      <Image source={require('./logo.png')} style={styles.tinyLogo} />
+
         <Text style={{ color: "#FFF", fontSize: 28, margin: 10 }}>Rosenstein Instalaciones</Text>
 
         <Controller
