@@ -24,13 +24,23 @@ import NotificationView from './views/NotificationView/NotificationView.js';
 import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
 import ClientMachines from './views/ClientMachines/ClientMachines.js';
 
-
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
 const Stack = createNativeStackNavigator();
 const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+
+// Configuración de linking
+const linking = {
+  prefixes: ["rosenstein://"], // Prefijos de deep link
+  config: {
+    screens: {
+      HomeScreen: "",
+      MachineDetails: "machine/:serialNumber", // Ruta dinámica con serialNumber
+    },
+  },
+};
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -129,7 +139,7 @@ export default function App() {
           logoHeight={150}
           logoWidth={150}
         >
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <Stack.Navigator>
               {isAuthenticated === null ? (
                 <Stack.Screen

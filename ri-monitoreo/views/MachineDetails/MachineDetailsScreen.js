@@ -6,6 +6,7 @@ import { Share, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 function MachineDetailsScreen({ route }) {
+  const { serialNumber } = route.params; 
   const { machine } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -24,6 +25,31 @@ function MachineDetailsScreen({ route }) {
       presionBaja: machine?.maintenanceHistory?.[0]?.presionBaja || 'No disponible'
     },
   };
+
+  useEffect(() => {
+    // Simula la búsqueda de datos desde tu backend o base de datos local
+    const fetchMachineData = async () => {
+      try {
+        const response = await fetch(
+          `https://mi-backend.com/api/machines/${serialNumber}` // Cambia por tu API
+        );
+        const data = await response.json();
+        setMachine(data);
+      } catch (error) {
+        console.error("Error al buscar datos de la máquina:", error);
+      }
+    };
+
+    fetchMachineData();
+  }, [serialNumber]);
+
+  if (!machine) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Cargando información de la máquina...</Text>
+      </View>
+    );
+  }
 
   useEffect(() => {
     console.log('Datos de la máquina recibidos:', machine);
