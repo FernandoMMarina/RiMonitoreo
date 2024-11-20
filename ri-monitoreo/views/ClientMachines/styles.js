@@ -1,89 +1,86 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#FFF',
-      padding: 16,
-    },
-    listContent: {
-      paddingBottom: 16,
-    },
-    card: {
-      backgroundColor: '#F8F9FA',
-      borderRadius: 8,
-      padding: 16,
-      marginBottom: 12,
-      elevation: 2,
-      shadowColor: '#000',
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-    },
-    machineName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 4,
-    },
-    lastMaintenance: {
-      fontSize: 14,
-      color: '#666',
-      marginBottom: 8,
-    },
-    chip: {
-      alignSelf: 'flex-start',
-      borderRadius: 16,
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-    },
-    chipText: {
-      color: '#FFF',
-      fontSize: 14,
-      fontWeight: 'bold',
-    },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 3,
-      },
-      titleCard: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-      },
-      subTitle: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 8,
-      },
-      chip: {
-        alignSelf: 'flex-start',
-        borderRadius: 16,
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-      },
-      chipText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: 'bold',
-      },
-      listContainer: {
-        paddingBottom: 16,
-      },
-      loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: '#1D1936',
+    padding: 10,
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  card: {
+    padding: 15,
+    backgroundColor: '#FFF',
+    marginBottom: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+  },
+  cardHeader: {
+    flexDirection: 'column',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  subTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  subTitle: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 5,
+  },
+  chipContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chip: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chipText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  expandedContent: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#EFEFEF',
+    borderRadius: 5,
+  },
+  historyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  noHistory: {
+    fontSize: 14,
+    color: '#999',
+  },
+  maintenanceItem: {
+    marginBottom: 10,
+  },
+  maintenanceDate: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  maintenanceDescription: {
+    fontSize: 14,
+    color: '#555',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

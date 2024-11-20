@@ -38,48 +38,53 @@ export default function LoginScreen({ navigation }) {
     return token;
   };
 
-  // Modificación del handleLogin para incluir el envío del pushToken
-  const handleLogin = async (data) => {
-    try {
-      const url = `${API_URL}/users/login`;
-      console.log("url completa : " + url)
-      const response = await axios.post(url, {
-        email: data.email,
-        password: data.password
-      }, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        }
-      });
+ // Modificación del handleLogin para incluir el envío del pushToken
+const handleLogin = async (data) => {
+  try {
+    const url = `${API_URL}/users/login`;
+    console.log("url completa : " + url);
 
-      if (response.status === 200) {
-        const pushToken = await registerForPushNotificationsAsync(); // Obtén el pushToken
+    // Convierte el email a minúsculas
+    const email = data.email.toLowerCase();
 
-        // Enviar pushToken al backend
-        if (pushToken) {
-          await axios.put(`${API_URL}/users/push-token`, {
-            pushToken: pushToken
-          }, {
-            headers: {
-              Authorization: `Bearer ${response.data.accessToken}` // Agrega el token de autenticación
-            }
-          });
-        }
-
-        navigation.navigate('HomeScreen');
-        await AsyncStorage.setItem('token', response.data.accessToken);
-        console.log("Login successful");
-      } 
-      else {
-        console.log("Login failed");
-        alert("Error en el inicio de sesión. Por favor, verifica tus credenciales.");
+    const response = await axios.post(url, {
+      email: email, // Usa el email convertido
+      password: data.password,
+    }, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       }
-    } catch (error) {
-      console.error("Login error", error);
-      alert("Hubo un error al intentar iniciar sesión. Por favor, intenta de nuevo más tarde.");
+    });
+
+    if (response.status === 200) {
+      const pushToken = await registerForPushNotificationsAsync(); // Obtén el pushToken
+
+      // Enviar pushToken al backend
+      if (pushToken) {
+        await axios.put(`${API_URL}/users/push-token`, {
+          pushToken: pushToken
+        }, {
+          headers: {
+            Authorization: `Bearer ${response.data.accessToken}` // Agrega el token de autenticación
+          }
+        });
+      }
+
+      navigation.navigate('HomeScreen');
+      await AsyncStorage.setItem('token', response.data.accessToken);
+      console.log("Login successful");
+    } 
+    else {
+      console.log("Login failed");
+      alert("Error en el inicio de sesión. Por favor, verifica tus credenciales.");
     }
-  };
+  } catch (error) {
+    console.error("Login error", error);
+    alert("Hubo un error al intentar iniciar sesión. Por favor, intenta de nuevo más tarde.");
+  }
+};
+
 
   const onSubmit = (data) => {
     handleLogin(data);

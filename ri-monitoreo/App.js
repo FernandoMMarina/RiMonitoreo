@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Alert,
-  Animated,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -145,11 +143,16 @@ export default function App() {
                   component={HomeScreen}
                   options={{
                     headerBackTitle: "Inicio",
+                    headerRight: () => <PlusButtonWithMenu />,
+                    headerRightContainerStyle: {
+                      paddingRight: 10,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    },
                     headerShown: false,
                     headerBackVisible: false,
                     headerBackTitleVisible: false,
                     headerTitle: "Rosenstein Instalaciones",
-                    headerRight: () => <PlusButtonWithMenu />,
                   }}
                 />
               ) : (
@@ -200,11 +203,28 @@ export default function App() {
                 component={HomeScreen}
                 options={{
                   headerBackTitle: "Inicio",
+                  headerStyle: {
+                    backgroundColor: '#ffffff', // Color de fondo del encabezado
+                    alignItems: 'flex-start', // Evita centrar elementos del header
+                  },
+                  headerTitleStyle: {
+                    alignSelf: 'flex-start', // Alinea el título hacia la izquierda
+                  },
+                  headerRight: () => <PlusButtonWithMenu />,
+                  headerRightContainerStyle: {
+                    paddingRight: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                  headerRightContainerStyle: {
+                    paddingRight: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
                   headerShown: true,
                   headerBackVisible: false,
                   headerBackTitleVisible: false,
                   headerTitle: "Rosenstein Instalaciones",
-                  headerRight: () => <PlusButtonWithMenu />,
                 }}
               />
               <Stack.Screen

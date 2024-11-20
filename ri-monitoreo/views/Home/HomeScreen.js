@@ -7,6 +7,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { RNCamera } from 'react-native-camera';
 import styles from './styles';
 import Constants from 'expo-constants';
+import ClientMachines from '../ClientMachines/ClientMachines';
+import { ScrollView } from 'react-native-gesture-handler';
+import MaintenanceVisitStatus from '../MaintenanceVisitStatus/MaintenanceVisitStatus';
 
 const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
 
@@ -259,101 +262,139 @@ const fetchClientMachines = async (machineIds) => {
     }
   };
   
+  // Suponiendo que `visits` es una lista de visitas que puedes obtener de tu API o de algún estado en `Screen1`
+// Visitas programadas de ejemplo:
+const scheduledVisits = [
+  { date: '2024-11-20T00:00:00.000Z' },
+  { date: '2024-11-15T00:00:00.000Z' },
+];
   
-
-  const Screen1 = () => (
-    <View style={styles.container}>
-      <Text style={styles.titleCScreen1}>
-        <Text style={{ fontWeight: 'bold' }}>
-          {gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
+  const Screen1 = () => {
+    return (
+      <View style={styles.container}>
+        {/* Siempre muestra el saludo */}
+        <Text style={styles.titleCScreen1}>
+          <Text style={{ fontWeight: 'bold' }}>
+            {gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
+          </Text>
+          <Text>{username}</Text>
         </Text>
-        <Text>
-          {username}
-        </Text>
-      </Text>
-
-      <View>
-  <TouchableOpacity
-    onPress={() => {
-      navigation.navigate('ClientMachines', { clientId: idCliente}); 
-    }}
-    style={{ padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5 }} // Opcional, para mayor visibilidad
-  >
-    <Text style={{ fontSize: 16, color: '#333' }}>
-      Ver máquinas del cliente
-    </Text>
-  </TouchableOpacity>
-</View>
-
-
-  
-      <View style={{ height: 200 }}>
-        {clientes.length === 0 ? (
-          <View style={styles.card}>
-            <Text style={{ color: "#161616",fontWeight:"bold", fontSize: 18, marginTop: 0,marginBottom:50 }}>
-              No hay Clientes con ese nombre,
-              realiza otra busqueda..
-            </Text>
+        {role === 'user' ? (
+          <View>
+            <MaintenanceVisitStatus visits={scheduledVisits} />
+            <Text style={styles.titleMaquinas}>Mantenimiento de mis equipos</Text>
           </View>
-        ) : (
-          <FlatList
-            data={clientes}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={async () => {
-                  if (item.machines && item.machines.length > 0) {
-                    const machineDetails = await fetchClientMachines(item.machines);
-                    navigation.navigate('MachinesList', { machines: machineDetails });
-                  } else {
-                    Alert.alert('No hay máquinas', 'Este cliente no tiene máquinas registradas.');
-                  }
-                }}
-              >
+      ) : role === 'technical'|| 'admin' ? (
+        <View>
+          <Text>Tareas de hoy</Text>
+        </View>
+
+      ) : null}
+
+        {/* Condicional para mostrar contenido según el rol */}
+        {role === 'user' ? (
+          // Mostrar solo el ScrollView si el rol es "user"
+          <ScrollView
+            style={{ marginTop: 20 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          >
+            <ClientMachines clientId={idCliente} />
+          </ScrollView>
+        ) : role === 'technical' ? (
+          // Mostrar el resto del contenido si el rol es "technical"
+          <ScrollView
+            style={{ marginTop: 20 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          >
+            <View style={{ height: 200 }}>
+              {clientes.length === 0 ? (
                 <View style={styles.card}>
-                  <Text style={styles.titleCard}>{item.username}</Text>
-                  <Text style={styles.subTitle}>
-                    Número de Máquinas: {item.machines.length}
+                  <Text
+                    style={{
+                      color: '#161616',
+                      fontWeight: 'bold',
+                      fontSize: 18,
+                      marginTop: 0,
+                      marginBottom: 50,
+                    }}
+                  >
+                    No hay Clientes con ese nombre, realiza otra búsqueda...
                   </Text>
                 </View>
+              ) : (
+                <FlatList
+                  data={clientes}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={async () => {
+                        if (item.machines && item.machines.length > 0) {
+                          const machineDetails = await fetchClientMachines(item.machines);
+                          navigation.navigate('MachinesList', { machines: machineDetails });
+                        } else {
+                          Alert.alert('No hay máquinas', 'Este cliente no tiene máquinas registradas.');
+                        }
+                      }}
+                    >
+                      <View style={styles.card}>
+                        <Text style={styles.titleCard}>{item.username}</Text>
+                        <Text style={styles.subTitle}>
+                          Número de Máquinas: {item.machines.length}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item) => item._id.toString()}
+                />
+              )}
+            </View>
+  
+            <View style={styles.recentSearchHeader}>
+              <Text style={styles.title}>Búsquedas Recientes</Text>
+              <TouchableOpacity onPress={clearSearches}>
+                <Text style={styles.clearButtonText}>LIMPIAR</Text>
               </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item._id.toString()}
-          />
-        )}
-      </View>
+            </View>
   
-      <View style={styles.recentSearchHeader}>
-        <Text style={styles.title}>Búsquedas Recientes</Text>
-        <TouchableOpacity onPress={clearSearches}>
-          <Text style={styles.clearButtonText}>LIMPIAR</Text>
-        </TouchableOpacity>
-      </View>
-  
-      {recentSearches.length === 0 ? (
-        <View style={styles.card}>
-          <Text style={{ color: "#161616",fontWeight:'bold', fontSize: 18, marginTop: 0,marginBottom:50 }}>
-            No hay búsquedas Recientes..
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={recentSearches}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('MachineDetails', { machine: item })}
-            >
+            {recentSearches.length === 0 ? (
               <View style={styles.card}>
-                <Text style={styles.titleCard}>{item.name}</Text>
-                <Text style={styles.subTitle}>Último mantenimiento: {item.lastMaintenance}</Text>
+                <Text
+                  style={{
+                    color: '#161616',
+                    fontWeight: 'bold',
+                    fontSize: 18,
+                    marginTop: 0,
+                    marginBottom: 50,
+                  }}
+                >
+                  No hay búsquedas recientes...
+                </Text>
               </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => (item.machineId ? item.machineId.toString() : Math.random().toString())}
-          contentContainerStyle={styles.flatListContent}
-        />
-      )}
-    </View>
-  );
+            ) : (
+              <FlatList
+                data={recentSearches}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('MachineDetails', { machine: item })}
+                  >
+                    <View style={styles.card}>
+                      <Text style={styles.titleCard}>{item.name}</Text>
+                      <Text style={styles.subTitle}>
+                        Último mantenimiento: {item.lastMaintenance}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) =>
+                  item.machineId ? item.machineId.toString() : Math.random().toString()
+                }
+                contentContainerStyle={styles.flatListContent}
+              />
+            )}
+          </ScrollView>
+        ) : null}
+      </View>
+    );
+  };
   
   
   const getInitials = (name) => {

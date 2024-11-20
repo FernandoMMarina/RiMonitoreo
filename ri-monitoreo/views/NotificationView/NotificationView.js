@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -11,11 +11,32 @@ const NotificationView = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState('');
+  const [role, setRole] = useState(null);
+
+  // Obtener el rol del usuario al cargar el componente
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          const response = await axios.get(`${API_URL}/users/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setRole(response.data.role); // Establecer el rol del usuario
+        } else {
+          console.log('Token no encontrado en AsyncStorage');
+        }
+      } catch (error) {
+        console.error('Error al obtener el perfil:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   // Buscar usuarios por nombre y rol
   const searchUsers = async (name, role) => {
     try {
-      const token = await AsyncStorage.getItem('token'); // Obtener el token del almacenamiento local
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         console.error('Token no encontrado');
         return;
@@ -27,7 +48,7 @@ const NotificationView = () => {
       });
       setUsers(response.data);
       await AsyncStorage.setItem('userId', response.data._id);
-      console.log('Usuarios encontrados:', response.data); // Mostrar usuarios encontrados
+      console.log('Usuarios encontrados:', response.data);
     } catch (error) {
       console.error('Error al buscar usuarios:', error);
     }
@@ -43,13 +64,11 @@ const NotificationView = () => {
       }
       
       if (!selectedUser || !message) {
-        console.log("El id del usuario es: " + selectedUser);
         Alert.alert('Error', 'Debes seleccionar un usuario y escribir un mensaje.');
         return;
       }
       
       console.log("Enviando notificación a usuario ID:", selectedUser);
-      console.log("Mensaje:", message);
       
       const response = await axios.post(`${API_URL}/users/users/send-test-notification`, {
         userId: selectedUser,
@@ -58,12 +77,10 @@ const NotificationView = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      console.log('Respuesta del servidor:', response.data); // Mostrar la respuesta del servidor
+      console.log('Respuesta del servidor:', response.data);
       Alert.alert('Notificación enviada', response.data.message);
     } catch (error) {
       console.error('Error al enviar la notificación:', error);
-      console.log("El mensaje es" + message);
-      console.log("El id del usuario es: " + selectedUser);
       Alert.alert('Error', 'Hubo un problema al enviar la notificación.');
     }
   };
@@ -72,38 +89,44 @@ const NotificationView = () => {
     <View style={styles.container}>
       <RegisterPushToken />
       <Text style={styles.header}>Dashboard de Notificaciones</Text>
-      
-      <View style={styles.searchContainer}>
-        <Text style={styles.subHeader}>Buscar Usuarios</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre del usuario"
-          onChangeText={(text) => searchUsers(text, 'user')}
-        />
-        <FlatList
-          data={users}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => setSelectedUser(item._id)}>
-              <View style={[styles.userItem, selectedUser === item._id && styles.selectedItem]}>
-                <Text>{item.username} ({item.role})</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item._id}
-        />
-      </View>
 
-      <View style={styles.notificationContainer}>
-        <Text style={styles.subHeader}>Enviar Notificación</Text>
-        <TextInput
-          style={styles.textarea}
-          placeholder="Mensaje de la notificación"
-          value={message}
-          onChangeText={(text) => setMessage(text)}
-          multiline={true}
-        />
-        <Button title="Enviar Notificación" onPress={sendNotification} />
-      </View>
+      {role === 'user' ? (
+        <Text style={styles.noNotifications}>No hay notificaciones</Text>
+      ) : (
+        <>
+          <View style={styles.searchContainer}>
+            <Text style={styles.subHeader}>Buscar Usuarios</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre del usuario"
+              onChangeText={(text) => searchUsers(text, 'user')}
+            />
+            <FlatList
+              data={users}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => setSelectedUser(item._id)}>
+                  <View style={[styles.userItem, selectedUser === item._id && styles.selectedItem]}>
+                    <Text>{item.username} ({item.role})</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item._id}
+            />
+          </View>
+
+          <View style={styles.notificationContainer}>
+            <Text style={styles.subHeader}>Enviar Notificación</Text>
+            <TextInput
+              style={styles.textarea}
+              placeholder="Mensaje de la notificación"
+              value={message}
+              onChangeText={(text) => setMessage(text)}
+              multiline={true}
+            />
+            <Button title="Enviar Notificación" onPress={sendNotification} />
+          </View>
+        </>
+      )}
     </View>
   );
 };
@@ -121,6 +144,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  noNotifications: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: 'gray',
+    marginTop: 20,
   },
   searchContainer: {
     marginBottom: 20,

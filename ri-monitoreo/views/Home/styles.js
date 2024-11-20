@@ -250,5 +250,11 @@ export default StyleSheet.create({
           android:30
         }),
         textAlign:"center"
+      },
+      titleMaquinas:{
+        color:"#FFF",
+        fontSize:20,
+        marginTop:15,
+        fontWeight:"bold"
       }
 });
