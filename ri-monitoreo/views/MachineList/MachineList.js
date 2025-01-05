@@ -11,7 +11,7 @@ import { Asset } from 'expo-asset';
 
 const { width } = Dimensions.get('window');
 
-const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 // Mapeo de tipo de máquina a imagen
 const machineTypeImages = {
