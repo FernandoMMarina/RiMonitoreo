@@ -5,9 +5,6 @@ import * as Print from 'expo-print';
 import { Share, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styles from './styles';
-import { Asset } from 'expo-asset';
-
-const logoUri = Asset.fromModule(require('./3653252.png')).uri;
 
 
 function MachineDetailsScreen({ route }) {
@@ -304,7 +301,7 @@ function MachineDetailsScreen({ route }) {
         
         {/* Información del Modelo */}
         <View style={styles.card}>
-          <Image source={{ uri: logoUri }} style={styles.image} />
+        <Image source={require('./machine.png')} style={styles.image} />
           <Text style={styles.title}>Modelo:</Text>
           <Text style={styles.modelName}>{machineInfo.name}</Text>
           <Text style={styles.title}>Fecha de Instalación :</Text>

@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import * as Animatable from 'react-native-animatable';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Asset } from 'expo-asset';
+
 
 const { width } = Dimensions.get('window');
 
@@ -15,31 +15,16 @@ const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 // Mapeo de tipo de máquina a imagen
 const machineTypeImages = {
-  'Aire Acondicionado': Asset.fromModule(require('./assets/acondicionador-de-aire.png')).uri,
-  'Caldera': Asset.fromModule(require('./assets/caldera.png')).uri,
-  'Compresor de Aire': Asset.fromModule(require('./assets/compresor-de-aire.png')).uri,
-  'AutoElevador': Asset.fromModule(require('./assets/elevador-de-automoviles.png')).uri,
+  'Aire Acondicionado': require('./acondicionador-de-aire.png'),
+  'Caldera': require('./caldera.png'),
+  'Compresor de Aire': require('./compresor-de-aire.png'),
+  'AutoElevador': require('./elevador-de-automoviles.png'),
 };
-const defaultImage = Asset.fromModule(require('./assets/default.png')).uri;
 
 const MachinesList = ({ route }) => {
   debugger;
   const { machines } = route.params;
   const navigation = useNavigation();
-  const [selectedCard, setSelectedCard] = useState(null);
-
-  useEffect(() => {
-    const preloadImages = async () => {
-      await Asset.loadAsync([
-        require('./assets/acondicionador-de-aire.png'),
-        require('./assets/caldera.png'),
-        require('./assets/compresor-de-aire.png'),
-        require('./assets/elevador-de-automoviles.png'),
-        require('./assets/default.png'),
-      ]);
-    };
-    preloadImages();
-  }, []);
 
   const fetchMachineDetails = async (machineId) => {
     try {
@@ -71,7 +56,7 @@ const MachinesList = ({ route }) => {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animatable.View animation="fadeInUp" duration={600} delay={index * 100} style={[styles.card]}>
           <TouchableOpacity onPress={() => handleCardPress(item._id)} activeOpacity={0.8} style={styles.touchableArea}>
-            <Image source={{ uri: imageSource }} style={styles.image} />
+            <Image source={imageSource} style={styles.image} />
             <Text style={styles.title}>Tipo de Máquina: {item.type || 'N/A'}</Text>
             <Text style={styles.info}>Nombre de Máquina: {item.name || 'Sin nombre'}</Text>
             <Text style={styles.title}>Historial de Mantenimiento</Text>

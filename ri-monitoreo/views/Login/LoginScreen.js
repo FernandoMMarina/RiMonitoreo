@@ -5,10 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from './styles';
 import * as Notifications from 'expo-notifications';
-import { Asset } from 'expo-asset';
 
 const API_URL = 'https://rosensteininstalaciones.com.ar/api';
-const logo = Asset.fromModule(require('./logo.png')).uri;
 
 export default function LoginScreen({ navigation }) {
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -73,7 +71,8 @@ export default function LoginScreen({ navigation }) {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Image source={{ uri: logo }} style={styles.tinyLogo} />
+        {/* Cambiado: El logo ahora se maneja con require directamente */}
+        <Image source={require('./logo.png')} style={styles.tinyLogo} />
         <Text style={{ color: "#FFF", fontSize: 28, margin: 10 }}>Rosenstein Instalaciones</Text>
 
         <Controller
