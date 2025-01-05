@@ -16,7 +16,6 @@ module.exports = {
   },
   resolver: {
     ...defaultConfig.resolver,
-    assetExts: defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg'), // Exclude svg from asset extensions
     sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'], // Add svg to source extensions
   },
 };
