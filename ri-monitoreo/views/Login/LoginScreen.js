@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from './styles';
 import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
@@ -19,23 +20,33 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const registerForPushNotificationsAsync = async () => {
-    let token;
+    if (!Device.isDevice) {
+      alert('Debe usar un dispositivo físico para las notificaciones push.');
+      return null;
+    }
+  
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-
+  
     if (existingStatus !== 'granted') {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-
+  
     if (finalStatus !== 'granted') {
-      alert('No se obtuvieron permisos para notificaciones push.');
+      alert('No se otorgaron permisos para recibir notificaciones push.');
       return null;
     }
-
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log("Push Token:", token);
-    return token;
+  
+    try {
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log('Expo Push Token:', token);
+      alert('Expo Push Token:', token);
+      return token;
+    } catch (error) {
+      console.error('Error obteniendo el token de Expo:', error);
+      return null;
+    }
   };
 
   const handleLogin = async (data) => {
