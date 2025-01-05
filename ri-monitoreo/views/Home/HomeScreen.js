@@ -4,14 +4,15 @@ import { CurvedBottomBarExpo } from 'react-native-curved-bottom-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { RNCamera } from 'react-native-camera';
+import { Camera } from 'expo-camera';
 import styles from './styles';
 import Constants from 'expo-constants';
 import ClientMachines from '../ClientMachines/ClientMachines';
 import { ScrollView } from 'react-native-gesture-handler';
 import MaintenanceVisitStatus from '../MaintenanceVisitStatus/MaintenanceVisitStatus';
+import MachineTypeCards from './card/MachineTypeCard';
 
-const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 function HomeScreen({ navigation}) {
   const [maquinas, setMaquinas] = useState([]);
@@ -25,8 +26,20 @@ function HomeScreen({ navigation}) {
   const [searchText, setSearchText] = useState('');
   const [gender, setGender] = useState('');
   const [role, setRole]= useState('');
-  const [machines, setMachines] = useState([]);
   const [idCliente, setIdCliente] = useState([]);
+  const [lastMaintenances, setLastMaintenances] = useState([]);
+  
+
+  const groupMachinesByType = (machines) => {
+    return machines.reduce((acc, machine) => {
+      const { type } = machine;
+      if (type) {
+        acc[type] = (acc[type] || 0) + 1; // Incrementar la cantidad
+      }
+      return acc;
+    }, {});
+  };
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -48,8 +61,6 @@ function HomeScreen({ navigation}) {
     });
   }, [navigation]);
 
-  
-  
   useEffect(() => {
     if (searchText.trim() !== "") {
       console.log('Estado actualizado, llamando a fetchClients:', searchText);
@@ -87,21 +98,22 @@ function HomeScreen({ navigation}) {
     const fetchData = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        if (token) {
-          const response = await axios.get(`${API_URL}/machines`, {
-            headers: { Authorization: `Bearer ${token}` }
+        if (token && idCliente) {
+          const response = await axios.get(`${API_URL}/machines/user/${idCliente}`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
-          setMaquinas(response.data.data);
+          console.log("Lista de Máquinas:", response.data.data);
+          setMaquinas(response.data || []); // Asegúrate de manejar null o undefined
         } else {
-          console.log('Token no encontrado en AsyncStorage');
+          console.log('Token o idCliente no encontrado');
         }
       } catch (error) {
-        console.error('Error al obtener las maquinas:', error);
+        console.error('Error al obtener las máquinas:', error);
       }
     };
     fetchData();
     loadRecentSearches(); // Cargar búsquedas recientes al iniciar
-  }, [searchText]);
+  }, [searchText,idCliente]);
 
   const filteredClientes = Array.isArray(clientes)
   ? clientes.filter((client) =>
@@ -133,7 +145,6 @@ const saveSearch = async (machine) => {
   }
 };
 
-
   // Cargar búsquedas recientes de AsyncStorage
 const loadRecentSearches = async () => {
     try {
@@ -146,40 +157,50 @@ const loadRecentSearches = async () => {
     }
   };
 
-  // Obtener datos del perfil de usuario
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndMaintenance = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
+          // Solicita el perfil del usuario
           const response = await axios.get(`${API_URL}/users/profile`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
-          setUsername(response.data.username);
-          setEmail(response.data.email);
-          setGender(response.data.gender); 
-          console.log("ACA"+JSON.stringify(response.data))
-          setIdCliente(response.data.id)
-          setRole(response.data.role);
+          
+          const { id, username, email, gender, role: userRole } = response.data;
+  
+          // Actualiza los estados relevantes
+          setIdCliente(id);
+          setUsername(username);
+          setEmail(email);
+          setGender(gender);
+          setRole(userRole); // Actualiza el rol del usuario
+  
+          console.log("Perfil actualizado:", response.data);
+  
+          // Llama a `fetchLastMaintenances` después de actualizar `idCliente`
+          await fetchLastMaintenances(id, token);
         } else {
           console.log('Token no encontrado en AsyncStorage');
         }
       } catch (error) {
-        console.error('Error al obtener el perfil:', error);
+        console.error('Error al obtener el perfil y los mantenimientos:', error);
       }
     };
-    fetchUser();
-  }, []);
-
+  
+    fetchUserAndMaintenance();
+  }, []);  
+  
   // Pedir permisos de la cámara para el escáner de códigos QR
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
   }, []);
+  
 
-const handleBarCodeScanned = async ({ data }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
     try {
       const machineInfo = JSON.parse(data);
@@ -191,8 +212,8 @@ const handleBarCodeScanned = async ({ data }) => {
         lastMaintenance: machine.lastMaintenance,
       });
     } catch (error) {
-      console.error("Error parsing QR code data:", error);
-      Alert.alert("Error", "Formato de datos QR incorrecto");
+      console.error('Error parsing QR code data:', error);
+      Alert.alert('Error', 'Formato de datos QR incorrecto');
     }
   };
 
@@ -230,6 +251,42 @@ const renderRecentSearches = ({ item }) => (
   </View>
 );
 
+
+const renderMaintenanceItem = ({ item }) => {
+  // Función para determinar el color según el estado
+  const getChipStyle = (estado) => {
+    switch (estado) {
+      case 'completado':
+        return { backgroundColor: 'green', color: 'white' };
+      case 'pendiente':
+        return { backgroundColor: 'orange', color: 'white' };
+      case 'cancelado':
+        return { backgroundColor: 'red', color: 'white' };
+      default:
+        return { backgroundColor: 'gray', color: 'white' };
+    }
+  };
+
+  const chipStyle = getChipStyle(item.estado);
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.titleCard}>Equipo: {item.maquinaId}</Text>
+      <Text style={styles.subTitle}>
+        Fecha: {new Date(item.fechaInicio).toLocaleDateString()}
+      </Text>
+      <Text style={styles.subTitle}>Tipo de Trabajo: {item.tipoDeTrabajo}</Text>
+      <Text style={styles.subTitle}>Descripción: {item.description}</Text>
+      <View style={[styles.chip, { backgroundColor: chipStyle.backgroundColor }]}>
+        <Text style={[styles.chipText, { color: chipStyle.color }]}>
+          {item.estado.toUpperCase()}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+
 const clearSearches = async () => {
     try {
       await AsyncStorage.removeItem('recentSearches');
@@ -247,7 +304,7 @@ const fetchClientMachines = async (machineIds) => {
         return [];
       }
   
-      const machineRequests = machineIds.map(id => axios.get(`${API_URL}/machines/${id}`, {
+      const machineRequests = machineIds.map(id => axios.get(`${API_URL}/machines/user/${idCliente}`, {
         headers: { Authorization: `Bearer ${token}` }
       }));
   
@@ -261,17 +318,60 @@ const fetchClientMachines = async (machineIds) => {
       return [];
     }
   };
+
+  const fetchLastMaintenances = async (clienteId, token) => {
+    try {
+      if (!clienteId) {
+        console.log('fetchLastMaintenances: idCliente no definido');
+        return;
+      }
   
+      const response = await axios.get(`${API_URL}/trabajos/clientes/${clienteId}/servicios`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (response.data && Array.isArray(response.data)) {
+        const completedMaintenances = response.data.filter(
+          (maintenance) => maintenance.estado === "completado"
+        );
+  
+        const orderedMaintenances = completedMaintenances.sort(
+          (a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio)
+        );
+  
+        console.log('Mantenimientos completados obtenidos:', orderedMaintenances.length);
+        setLastMaintenances(orderedMaintenances);
+      } else {
+        console.log('fetchLastMaintenances: No se encontraron mantenimientos recientes.');
+      }
+    } catch (error) {
+      console.error('fetchLastMaintenances: Error al obtener los últimos mantenimientos:', error);
+    }
+  };
+  
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token && idCliente) {
+        console.log('Actualizando mantenimientos...');
+        await fetchLastMaintenances(idCliente, token);
+      }
+    }, 60000); // Actualizar cada minuto
+  
+    return () => clearInterval(interval);
+  }, [idCliente]);
+    
   // Suponiendo que `visits` es una lista de visitas que puedes obtener de tu API o de algún estado en `Screen1`
 // Visitas programadas de ejemplo:
 const scheduledVisits = [
-  { date: '2024-11-20T00:00:00.000Z' },
-  { date: '2024-11-15T00:00:00.000Z' },
+  { date: '2024-12-29T00:00:00.000Z' },
+  { date: '2024-12-31T00:00:00.000Z' },
 ];
   
   const Screen1 = () => {
     return (
       <View style={styles.container}>
+        <ScrollView>
         {/* Siempre muestra el saludo */}
         <Text style={styles.titleCScreen1}>
           <Text style={{ fontWeight: 'bold' }}>
@@ -282,11 +382,37 @@ const scheduledVisits = [
         {role === 'user' ? (
           <View>
             <MaintenanceVisitStatus visits={scheduledVisits} />
+            <View>
             <Text style={styles.titleMaquinas}>Mantenimiento de mis equipos</Text>
+            <View style={{flexDirection:'row'}}>
+            <MachineTypeCards machines={maquinas || []} navigation={navigation} />
+            </View>
+            </View> 
+            <View>
+              <Text style={styles.titleMaquinas}>Últimos mantenimientos</Text>
+              {lastMaintenances.length === 0 ? (
+                <View style={styles.card}>
+                  <Text style={{color:"black"}}>No hay mantenimientos recientes disponibles.</Text>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => navigation.navigate('MaintenanceDetails', { maintenance: item })}>
+                    <FlatList
+                    data={lastMaintenances}
+                    renderItem={renderMaintenanceItem}
+                    keyExtractor={(item) => item._id.toString()}
+                    contentContainerStyle={{ padding: 10 }}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+
+
           </View>
+          
+
       ) : role === 'technical'|| 'admin' ? (
         <View>
-          <Text>Tareas de hoy</Text>
+          <Text style={styles.titleMaquinas} >Tareas de hoy</Text>
         </View>
 
       ) : null}
@@ -392,11 +518,28 @@ const scheduledVisits = [
             )}
           </ScrollView>
         ) : null}
+        </ScrollView>
       </View>
     );
   };
   
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token && idCliente) {
+        await fetchLastMaintenances(idCliente, token);
+      }
+    }, 60000); // Cada minuto
   
+    return () => clearInterval(interval);
+  }, [idCliente]); // Ejecuta el intervalo solo cuando `idCliente` cambie
+
+  
+  useEffect(() => {
+    console.log("Valor actualizado de idCliente:", idCliente);
+  }, [idCliente]);
+  
+
   const getInitials = (name) => {
     const names = name.split(' ');
     const initials = names.map(n => n[0]).join('').toUpperCase();
@@ -487,31 +630,26 @@ const scheduledVisits = [
       </CurvedBottomBarExpo.Navigator>
 
       {showScanner && (
-        <View style={styles.scannerContainer}>
-          <RNCamera
+      <View style={styles.scannerContainer}>
+        {hasPermission === null && <Text>Solicitando permiso para usar la cámara...</Text>}
+        {hasPermission === false && (
+          <Text>No tienes permiso para usar la cámara. Por favor, habilítalo en configuraciones.</Text>
+        )}
+        {hasPermission === true && (
+          <Camera
             style={StyleSheet.absoluteFillObject}
-            onBarCodeRead={scanned ? undefined : handleBarCodeScanned}
-            captureAudio={false}
+            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           />
-          <TouchableOpacity style={styles.closeButton} onPress={() => setShowScanner(false)}>
-            <Ionicons name="close-circle-outline" size={50} color="white" />
-          </TouchableOpacity>
-        </View>
-      )}
-
-{hasPermission === null && <Text>Solicitando permiso para usar la cámara...</Text>}
-{hasPermission === false && (
-  <Text>No tienes permiso para usar la cámara. Por favor, habilítalo en configuraciones.</Text>
-)}
-{hasPermission === true && (
-  <RNCamera
-    style={StyleSheet.absoluteFillObject}
-    onBarCodeRead={scanned ? undefined : handleBarCodeScanned}
-    captureAudio={false}
-  />
-)}
+        )}
+        <TouchableOpacity style={styles.closeButton} onPress={() => setShowScanner(false)}>
+          <Ionicons name="close-circle-outline" size={50} color="white" />
+        </TouchableOpacity>
+      </View>
+    )}
     </View>
   );
 }
+
+
 
 export default HomeScreen;

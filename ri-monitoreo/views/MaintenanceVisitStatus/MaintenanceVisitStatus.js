@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,Alert} from 'react-native';
 import styles from './styles';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Share, Linking } from 'react-native';
 
 const MaintenanceVisitStatus = ({ visits }) => {
   const [visitMessage, setVisitMessage] = useState('');
@@ -38,10 +40,30 @@ const MaintenanceVisitStatus = ({ visits }) => {
       setVisitMessage(`Tu próxima visita es el ${upcomingVisit.date.toLocaleDateString()}`);
     }
   }, [visits]);
+   const openWhatsApp = (phoneNumber, message) => {
+      const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+  
+      Linking.canOpenURL(url)
+        .then(supported => {
+          if (supported) {
+            return Linking.openURL(url);
+          } else {
+            Alert.alert('Error', 'WhatsApp no está instalado en este dispositivo');
+          }
+        })
+        .catch(err => console.error('Error al abrir WhatsApp:', err));
+    };
 
   return (
     <View style={styles.card}>
       <Text style={styles.message}>{visitMessage}</Text>
+      <TouchableOpacity 
+              style={styles.whatsappButton} 
+              onPress={() => openWhatsApp('+541141651335', 'Hola, necesito agendar un mantenimiento para mi máquina.')}
+            >
+              <Ionicons style={styles.icon} name={'logo-whatsapp'} color={"white"} size={25}/>
+              <Text style={styles.buttonText}>Enviar Mensaje</Text>
+      </TouchableOpacity>
     </View>
   );
 };

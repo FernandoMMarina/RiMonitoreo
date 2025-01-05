@@ -14,5 +14,21 @@ export default StyleSheet.create({
       fontWeight: 'bold',
       textAlign: 'center',
     },
+    whatsappButton: {
+      flexDirection: 'row',
+      backgroundColor: '#25D366',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      marginTop: 15,
+    },
+    buttonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 16,
+      marginLeft: 10,
+    },
   });
   

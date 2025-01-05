@@ -256,5 +256,39 @@ export default StyleSheet.create({
         fontSize:20,
         marginTop:15,
         fontWeight:"bold"
-      }
+      },
+      card: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 15,
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
+      },
+      titleCard: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5,
+      },
+      subTitle: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 5,
+      },
+      chip: {
+        alignSelf: 'flex-start',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 20,
+        marginTop: 10,
+      },
+      chipText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+      },
 });

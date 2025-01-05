@@ -1,9 +1,9 @@
-module.exports = function(api) {
+module.exports = function (api) {
   api.cache(true);
   return {
     presets: [
       'babel-preset-expo',
-      ['@babel/preset-react', { runtime: 'automatic' }]
+      ['@babel/preset-react', { runtime: 'automatic' }],
     ],
     plugins: [
       ['@babel/plugin-transform-class-properties', { loose: true }],
@@ -12,7 +12,8 @@ module.exports = function(api) {
       ['module:react-native-dotenv', {
         moduleName: '@env',
         path: '.env',
-      }]
+      }],
+      'expo-asset/babel', // Asegúrate de incluir este plugin
     ],
   };
 };

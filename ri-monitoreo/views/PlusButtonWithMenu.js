@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 const PlusButtonWithMenu = () => {
   const [role, setRole] = useState(null);

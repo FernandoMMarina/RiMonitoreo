@@ -7,6 +7,7 @@ import Constants from 'expo-constants';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import * as Animatable from 'react-native-animatable';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Asset } from 'expo-asset';
 
 const { width } = Dimensions.get('window');
 
@@ -14,17 +15,31 @@ const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api';
 
 // Mapeo de tipo de máquina a imagen
 const machineTypeImages = {
-  'Aire Acondicionado': require('./acondicionador-de-aire.png'),
-  'Caldera': require('./caldera.png'),
-  'Compresor de Aire': require('./compresor-de-aire.png'),
-  'AutoElevador': require('./elevador-de-automoviles.png'),
+  'Aire Acondicionado': Asset.fromModule(require('./assets/acondicionador-de-aire.png')).uri,
+  'Caldera': Asset.fromModule(require('./assets/caldera.png')).uri,
+  'Compresor de Aire': Asset.fromModule(require('./assets/compresor-de-aire.png')).uri,
+  'AutoElevador': Asset.fromModule(require('./assets/elevador-de-automoviles.png')).uri,
 };
+const defaultImage = Asset.fromModule(require('./assets/default.png')).uri;
 
 const MachinesList = ({ route }) => {
   debugger;
   const { machines } = route.params;
   const navigation = useNavigation();
   const [selectedCard, setSelectedCard] = useState(null);
+
+  useEffect(() => {
+    const preloadImages = async () => {
+      await Asset.loadAsync([
+        require('./assets/acondicionador-de-aire.png'),
+        require('./assets/caldera.png'),
+        require('./assets/compresor-de-aire.png'),
+        require('./assets/elevador-de-automoviles.png'),
+        require('./assets/default.png'),
+      ]);
+    };
+    preloadImages();
+  }, []);
 
   const fetchMachineDetails = async (machineId) => {
     try {
@@ -34,16 +49,14 @@ const MachinesList = ({ route }) => {
         return null;
       }
       const response = await axios.get(`${API_URL}/machines/${machineId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error('Error al obtener detalles de la máquina:', error);
       return null;
     }
   };
-
   const handleCardPress = async (machineId) => {
     const machineDetails = await fetchMachineDetails(machineId);
     if (machineDetails) {
@@ -52,47 +65,24 @@ const MachinesList = ({ route }) => {
   };
 
   const renderItem = ({ item, index }) => {
-    // Selecciona la imagen correspondiente según el tipo de máquina
-    const imageSource = machineTypeImages[item.type] || require('./3653252.png');
+    const imageSource = machineTypeImages[item.type] || defaultImage;
 
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Animatable.View
-          animation="fadeInUp"
-          duration={600}
-          delay={index * 100}
-          style={[styles.card, selectedCard === item._id ? styles.selectedCard : null]}
-        >
-          <PanGestureHandler
-            onGestureEvent={(event) => {
-              if (event.nativeEvent.translationY > 100) {
-                setSelectedCard(item._id);
-              } else if (event.nativeEvent.translationY < -100) {
-                setSelectedCard(null);
-              }
-            }}
-            onHandlerStateChange={(event) => {
-              if (event.nativeEvent.state === State.END) {
-                setSelectedCard(null);
-              }
-            }}>
-            <TouchableOpacity
-              onPress={() => handleCardPress(item._id)}
-              activeOpacity={0.8}
-              style={styles.touchableArea}>
-              <Image source={imageSource} style={styles.image} />
-              <Text style={styles.title}>Tipo de Máquina: {item.type || 'N/A'}</Text>
-              <Text style={styles.info}>Nombre de Máquina: {item.name || 'Sin nombre'}</Text>
-              <Text style={styles.title}>Historial de Mantenimiento</Text>
-              {item.maintenanceHistory && item.maintenanceHistory.length > 0 ? (
-                <Text style={styles.info}>
-                  Último Mantenimiento: {new Date(item.maintenanceHistory[0].date).toLocaleDateString()}
-                </Text>
-              ) : (
-                <Text style={styles.info}>No hay historial de mantenimiento disponible</Text>
-              )}
-            </TouchableOpacity>
-          </PanGestureHandler>
+        <Animatable.View animation="fadeInUp" duration={600} delay={index * 100} style={[styles.card]}>
+          <TouchableOpacity onPress={() => handleCardPress(item._id)} activeOpacity={0.8} style={styles.touchableArea}>
+            <Image source={{ uri: imageSource }} style={styles.image} />
+            <Text style={styles.title}>Tipo de Máquina: {item.type || 'N/A'}</Text>
+            <Text style={styles.info}>Nombre de Máquina: {item.name || 'Sin nombre'}</Text>
+            <Text style={styles.title}>Historial de Mantenimiento</Text>
+            {item.maintenanceHistory && item.maintenanceHistory.length > 0 ? (
+              <Text style={styles.info}>
+                Último Mantenimiento: {new Date(item.maintenanceHistory[0].date).toLocaleDateString()}
+              </Text>
+            ) : (
+              <Text style={styles.info}>No hay historial de mantenimiento disponible</Text>
+            )}
+          </TouchableOpacity>
         </Animatable.View>
       </GestureHandlerRootView>
     );

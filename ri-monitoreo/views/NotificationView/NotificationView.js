@@ -5,7 +5,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import RegisterPushToken from './RegisterPushToken'; 
 
-const API_URL = 'http://ec2-34-230-81-174.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 const NotificationView = () => {
   const [users, setUsers] = useState([]);

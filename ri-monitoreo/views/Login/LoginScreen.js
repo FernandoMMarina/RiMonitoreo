@@ -1,24 +1,25 @@
-import React from 'react';
-import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from './styles';
-import Constants from 'expo-constants';
-
-const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
-
 import * as Notifications from 'expo-notifications';
+import { Asset } from 'expo-asset';
+
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
+const logo = Asset.fromModule(require('./logo.png')).uri;
 
 export default function LoginScreen({ navigation }) {
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       email: '',
-      password: ''
-    }
+      password: '',
+    },
   });
 
-  // Nueva función para registrar el token de notificación
+  const [loading, setLoading] = useState(false);
+
   const registerForPushNotificationsAsync = async () => {
     let token;
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -30,79 +31,61 @@ export default function LoginScreen({ navigation }) {
     }
 
     if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notifications!');
-      return;
+      alert('No se obtuvieron permisos para notificaciones push.');
+      return null;
     }
 
     token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log("Push Token:", token);
     return token;
   };
 
- // Modificación del handleLogin para incluir el envío del pushToken
-const handleLogin = async (data) => {
-  try {
-    const url = `${API_URL}/users/login`;
-    console.log("url completa : " + url);
+  const handleLogin = async (data) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_URL}/users/login`, {
+        email: data.email.toLowerCase(),
+        password: data.password,
+      });
 
-    // Convierte el email a minúsculas
-    const email = data.email.toLowerCase();
+      if (response.status === 200) {
+        const pushToken = await registerForPushNotificationsAsync();
+        if (pushToken) {
+          await axios.put(`${API_URL}/users/push-token`, {
+            pushToken,
+          }, {
+            headers: { Authorization: `Bearer ${response.data.accessToken}` },
+          });
+          await AsyncStorage.setItem('pushToken', pushToken);
+        }
 
-    const response = await axios.post(url, {
-      email: email, // Usa el email convertido
-      password: data.password,
-    }, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        await AsyncStorage.setItem('token', response.data.accessToken);
+        navigation.navigate('HomeScreen');
       }
-    });
-
-    if (response.status === 200) {
-      const pushToken = await registerForPushNotificationsAsync(); // Obtén el pushToken
-
-      // Enviar pushToken al backend
-      if (pushToken) {
-        await axios.put(`${API_URL}/users/push-token`, {
-          pushToken: pushToken
-        }, {
-          headers: {
-            Authorization: `Bearer ${response.data.accessToken}` // Agrega el token de autenticación
-          }
-        });
-      }
-
-      navigation.navigate('HomeScreen');
-      await AsyncStorage.setItem('token', response.data.accessToken);
-      console.log("Login successful");
-    } 
-    else {
-      console.log("Login failed");
-      alert("Error en el inicio de sesión. Por favor, verifica tus credenciales.");
+    } catch (error) {
+      alert('Error al iniciar sesión. Verifica tus credenciales.');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Login error", error);
-    alert("Hubo un error al intentar iniciar sesión. Por favor, intenta de nuevo más tarde.");
-  }
-};
-
-
-  const onSubmit = (data) => {
-    handleLogin(data);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Image source={require('./logo.png')} style={styles.tinyLogo} />
-
+      <Image source={{ uri: logo }} style={styles.tinyLogo} />
         <Text style={{ color: "#FFF", fontSize: 28, margin: 10 }}>Rosenstein Instalaciones</Text>
 
         <Controller
           control={control}
+          name="email"
+          rules={{
+            required: 'El email es obligatorio',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'Introduce un email válido',
+            },
+          }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
@@ -113,13 +96,13 @@ const handleLogin = async (data) => {
               placeholderTextColor="#666"
             />
           )}
-          name="email"
-          rules={{ required: true }}
         />
-        {errors.username && <Text style={styles.errorText}>Username is required</Text>}
+        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
         <Controller
           control={control}
+          name="password"
+          rules={{ required: 'La contraseña es obligatoria' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
@@ -131,19 +114,17 @@ const handleLogin = async (data) => {
               secureTextEntry
             />
           )}
-          name="password"
-          rules={{ required: true }}
         />
-        {errors.password && <Text style={styles.errorText}>Password is required</Text>}
+        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-        <TouchableOpacity
-          style={styles.loginScreenButton}
-          onPress={handleSubmit(onSubmit)}
-          underlayColor='#fff'>
-          <Text style={styles.loginText}>Ingresar</Text>
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#FFF" />
+        ) : (
+          <TouchableOpacity style={styles.loginScreenButton} onPress={handleSubmit(handleLogin)}>
+            <Text style={styles.loginText}>Ingresar</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-

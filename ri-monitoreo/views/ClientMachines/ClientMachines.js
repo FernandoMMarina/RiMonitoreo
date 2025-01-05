@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from './styles';
 
-const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 const ClientMachines = ({ clientId }) => {
   const [machines, setMachines] = useState([]);

@@ -30,7 +30,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
 const Stack = createNativeStackNavigator();
-const API_URL = 'http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api';
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -69,31 +69,31 @@ export default function App() {
     await sendTokenToBackend(tokenNoti);
     return tokenNoti;
   };
-
   const sendTokenToBackend = async (tokenNoti) => {
-    if (!userId) {
-      console.error('El ID del usuario no está definido.');
-      return;
-    }
-
     try {
+      const storedToken = await AsyncStorage.getItem('pushToken');
+      if (storedToken === tokenNoti) {
+        console.log('El token ya está registrado en el backend.');
+        return;
+      }
+  
       const response = await fetch(`${API_URL}/users/register-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenNoti, userId }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Error en la solicitud: ${response.status}`);
       }
-
-      const data = await response.json();
-      console.log('Token enviado al backend:', data);
+  
+      await AsyncStorage.setItem('pushToken', tokenNoti); // Guarda el token para evitar redundancia
+      console.log('Token enviado al backend:', await response.json());
     } catch (error) {
       console.error('Error enviando el token al backend:', error);
     }
   };
-
+  
   // Verifica autenticación y ejecuta la notificación push solo si está autenticado y userId está definido
   useEffect(() => {
     const checkAuth = async () => {
