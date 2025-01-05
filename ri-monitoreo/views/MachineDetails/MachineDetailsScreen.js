@@ -301,7 +301,7 @@ function MachineDetailsScreen({ route }) {
         
         {/* Información del Modelo */}
         <View style={styles.card}>
-        <Image source={require('./machine.png')} style={styles.image} />
+        <Image source={require('./3653252.png')} style={styles.image} />
           <Text style={styles.title}>Modelo:</Text>
           <Text style={styles.modelName}>{machineInfo.name}</Text>
           <Text style={styles.title}>Fecha de Instalación :</Text>

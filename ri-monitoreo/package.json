@@ -43,9 +43,9 @@
     "expo-status-bar": "~2.0.0",
     "jwt-decode": "^4.0.0",
     "metro": "^0.81.0",
-    "react": "18.3.1",
+    "react": "^18.3.0",
     "react-hook-form": "^7.51.0",
-    "react-native": "0.76.5",
+    "react-native": "^0.76.5",
     "react-native-animatable": "^1.4.0",
     "react-native-animated-splash-screen": "^2.0.5",
     "react-native-config": "^1.5.3",
@@ -65,7 +65,8 @@
     "react-navigation-header-buttons": "^11.2.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-syntax-import-assertions": "^7.26.0",
     "@babel/plugin-transform-private-methods": "^7.25.4",
     "@react-native-community/cli": "latest",
     "@react-native/metro-config": "^0.76.2",

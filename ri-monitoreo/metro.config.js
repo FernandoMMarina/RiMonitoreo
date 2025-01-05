@@ -12,10 +12,12 @@ module.exports = {
         inlineRequires: true,
       },
     }),
-    babelTransformerPath: require.resolve('react-native-svg-transformer'), // If you're using SVGs
+    // Elimina cualquier configuración de babel relacionada con expo-asset
+    babelTransformerPath: require.resolve('react-native-svg-transformer'), // Si usas SVGs
   },
   resolver: {
     ...defaultConfig.resolver,
-    sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'], // Add svg to source extensions
+    assetExts: defaultConfig.resolver.assetExts.filter((ext) => ext !== 'svg'), // Excluye SVG si usas react-native-svg-transformer
+    sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'], // Añade SVG como fuente si lo necesitas
   },
 };
