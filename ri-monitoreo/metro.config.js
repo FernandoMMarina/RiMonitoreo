@@ -5,10 +5,18 @@ const defaultConfig = getDefaultConfig(__dirname);
 module.exports = {
   ...defaultConfig,
   transformer: {
-    babelTransformerPath: require.resolve('react-native-svg-transformer'),
+    ...defaultConfig.transformer,
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
+    babelTransformerPath: require.resolve('react-native-svg-transformer'), // If you're using SVGs
   },
   resolver: {
-    assetExts: defaultConfig.resolver.assetExts.filter((ext) => ext !== 'svg'),
-    sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'],
+    ...defaultConfig.resolver,
+    assetExts: defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg'), // Exclude svg from asset extensions
+    sourceExts: [...defaultConfig.resolver.sourceExts, 'svg'], // Add svg to source extensions
   },
 };
