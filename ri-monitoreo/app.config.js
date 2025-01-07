@@ -9,7 +9,7 @@ export default ({ config }) => ({
     splash: {
       image: "./assets/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff"
+      backgroundColor: "#1D1936"
     },
     ios: {
       supportsTablet: true,
@@ -25,9 +25,13 @@ export default ({ config }) => ({
       package: "com.appri.android", // Identificador único para Android
       googleServicesFile: "./google-services.json",
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#ffffff"
+        foregroundImage: "./assets/icon.png",
+        backgroundColor: "#1D1936"
       },
+      "notification": {
+      "icon": "./assets/icon-noti.png",
+      "color": "#1D1936"
+    },
       permissions: [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
