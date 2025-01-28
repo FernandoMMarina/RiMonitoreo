@@ -1,118 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchOrders, selectFilteredOrders } from '../../redux/slices/ordersSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
-
 const OrdersList = () => {
-  const [clientes, setClientes] = useState([]); // Asegúrate de que clientes esté inicializado como un array
-  const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const dispatch = useDispatch();
   const navigation = useNavigation();
-  // Cargar órdenes y clientes desde el backend
+  const [selectedFilter, setSelectedFilter] = useState('all');
+
+  // Obtener ID del técnico desde el perfil del usuario
+  const { profile } = useSelector((state) => state.user);
+  const tecnicoId = profile?.id;
+
+  // Obtener datos desde Redux
+  const filteredOrders = useSelector((state) => selectFilteredOrders(state, selectedFilter));
+  console.log(filteredOrders);
+  const { loading, error } = useSelector((state) => state.orders);
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get('http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api/trabajos/equipo/67326de1b8efe0bc08448a8e');
-        setOrders(response.data);
-        setFilteredOrders(response.data); // Inicializar filteredOrders
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    
-    const fetchClientes = async () => {
-      const token = await AsyncStorage.getItem('token');
-      try {
-        const response = await axios.get("http://ec2-44-211-67-52.compute-1.amazonaws.com:5000/api/users/user/6701bff10ad8a3d2d030bcc8", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        // Asegurarse de que setClientes reciba un array
-        setClientes(Array.isArray(response.data) ? response.data : [response.data]);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    fetchOrders();
-    fetchClientes();
-  }, []);
-
-  // Función para combinar clientes y órdenes
-  const combineOrdersWithClients = (ordersData) => {
-    return ordersData.map(order => {
-      // Verifica que clientes es un array antes de usar .find
-      const cliente = Array.isArray(clientes) 
-        ? clientes.find(client => String(client._id) === String(order.cotizacionId.clienteId)) 
-        : null;
-      return {
-        ...order,
-        clientName: cliente?.username || "Desconocido",
-        clientAddress: cliente
-          ? `${cliente.direccion.calle} ${cliente.direccion.numero}, ${cliente.direccion.ciudad}, ${cliente.direccion.provincia}, ${cliente.direccion.codigoPostal}`
-          : "Sin dirección",
-      };
-    });
-  };
-
-  // Aplicar el filtro de órdenes y combinar datos
-  const filterOrders = (status) => {
-    setSelectedFilter(status);
-    const filtered = status === 'all' ? orders : orders.filter(order => order.estado === status);
-    const combinedFilteredOrders = combineOrdersWithClients(filtered);
-    setFilteredOrders(combinedFilteredOrders);
-  };
-
-  // Actualizar la lista combinada inicial después de obtener clientes
-  useEffect(() => {
-    if (orders.length > 0 && Array.isArray(clientes) && clientes.length > 0) {
-      const combinedInitialOrders = combineOrdersWithClients(orders);
-      setFilteredOrders(combinedInitialOrders);
+    if (tecnicoId) {
+      dispatch(fetchOrders(tecnicoId));
     }
-  }, [orders, clientes]);
+  }, [dispatch, tecnicoId]);
 
   const renderOrderItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate("DetallesTrabajo", { trabajo: item })}
-    >
-      <View style={{ padding: 16, borderBottomWidth: 1, borderColor: '#ddd' }}>
-        <Text style={styles.info}>Cliente: {item.clientName || "Desconocido"}</Text>
-        <Text style={styles.info}>Dirección: {item.clientAddress || "Sin dirección"}</Text>
+    <TouchableOpacity onPress={() => navigation.navigate('DetallesTrabajo', { trabajo: item })}>
+      <View style={styles.orderItem}>
+        <Text style={styles.info}>ID Orden: {item._id}</Text>
         <Text style={styles.info}>Estado: {item.estado}</Text>
-        <Text style={styles.info}>Fecha: {new Date(item.fechaAsignacion).toLocaleDateString()}</Text>
+        <Text style={styles.info}>Fecha: {new Date(item.fechaInicio).toLocaleDateString()}</Text>
       </View>
     </TouchableOpacity>
   );
 
   const ChipButton = ({ title, status }) => (
     <TouchableOpacity
-      onPress={() => filterOrders(status)}
-      style={{
-        height: 30,
-        paddingVertical: 4,
-        paddingHorizontal: 16,
-        borderRadius: 16,
-        backgroundColor: selectedFilter === status ? 'black' : 'white',
-        borderWidth: 1,
-        borderColor: 'black',
-        marginHorizontal: 4,
-      }}
+      onPress={() => setSelectedFilter(status)}
+      style={[
+        styles.chipButton,
+        selectedFilter === status && styles.chipButtonSelected,
+      ]}
     >
-      <Text style={{ color: selectedFilter === status ? 'white' : 'black' }}>
+      <Text style={[
+        styles.chipButtonText,
+        selectedFilter === status && styles.chipButtonTextSelected,
+      ]}>
         {title}
       </Text>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#ffffff" />
+        <Text style={styles.info}>Cargando datos...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={[styles.info, { color: 'red' }]}>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Órdenes de Trabajo</Text>
-      
+      <View>
+
       <FlatList
         data={[
           { title: 'Todas', status: 'all' },
@@ -125,18 +85,19 @@ const OrdersList = () => {
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.status}
-        renderItem={({ item }) => (
-          <ChipButton title={item.title} status={item.status} />
-        )}
-        contentContainerStyle={{ paddingHorizontal: 8 }}
+        renderItem={({ item }) => <ChipButton title={item.title} status={item.status} />}
+        contentContainerStyle={{ paddingHorizontal: 0 }}
       />
+      </View>
+      <View>
 
       <FlatList
         data={filteredOrders}
         renderItem={renderOrderItem}
-        keyExtractor={(item) => item._id.toString()}
+        keyExtractor={(item) => String(item._id)}
         ListEmptyComponent={<Text style={styles.info}>No hay órdenes disponibles.</Text>}
       />
+      </View>
     </View>
   );
 };
@@ -150,15 +111,40 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 16,
-    marginTop: 16,
   },
   info: {
     fontSize: 16,
     marginVertical: 5,
+    color: 'black',
+  },
+  orderItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: 'white',
+    marginTop:20
+  },
+  chipButton: {
+    height: 30,
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'black',
+    marginHorizontal: 4,
+    backgroundColor: '#f0f0f0',
+  },
+  chipButtonSelected: {
+    backgroundColor: 'black',
+  },
+  chipButtonText: {
+    color: 'black',
+  },
+  chipButtonTextSelected: {
     color: 'white',
   },
 });

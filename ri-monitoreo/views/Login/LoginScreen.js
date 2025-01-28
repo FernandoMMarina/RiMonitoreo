@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }) {
     try {
       const token = (await Notifications.getExpoPushTokenAsync()).data;
       console.log('Expo Push Token:', token);
-      alert('Expo Push Token:', token);
+
       return token;
     } catch (error) {
       console.error('Error obteniendo el token de Expo:', error);
@@ -52,33 +52,56 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async (data) => {
     setLoading(true);
     try {
+      // Solicitud al servidor
       const response = await axios.post(`${API_URL}/users/login`, {
         email: data.email.toLowerCase(),
         password: data.password,
       });
-
+  
       if (response.status === 200) {
+        const { accessToken } = response.data;
+  
+        // Registrar token de notificaciones
         const pushToken = await registerForPushNotificationsAsync();
         if (pushToken) {
-          await axios.put(`${API_URL}/users/push-token`, {
-            pushToken,
-          }, {
-            headers: { Authorization: `Bearer ${response.data.accessToken}` },
-          });
-          await AsyncStorage.setItem('pushToken', pushToken);
+          try {
+            await axios.put(
+              `${API_URL}/users/push-token`,
+              { pushToken },
+              { headers: { Authorization: `Bearer ${accessToken}` } }
+            );
+            await AsyncStorage.setItem('pushToken', pushToken);
+          } catch (pushError) {
+            console.error('Error al registrar el token de notificaciones:', pushError);
+          }
         }
+        await AsyncStorage.setItem('token2', response.data.accessToken);
+        console.log('Token almacenado2:', response.data.accessToken);
 
-        await AsyncStorage.setItem('token', response.data.accessToken);
-        navigation.navigate('HomeScreen');
+        // Guardar el token en AsyncStorage y navegar a la pantalla principal
+        await AsyncStorage.setItem('token', accessToken);
+        console.log('Token actual:', await AsyncStorage.getItem('token'));
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'HomeScreen' }],
+        });
       }
     } catch (error) {
-      alert('Error al iniciar sesión. Verifica tus credenciales.');
+      // Mostrar diferentes mensajes dependiendo del error
+      if (error.response?.status === 401) {
+        alert('Credenciales incorrectas. Inténtalo nuevamente.');
+      } else if (error.response?.status === 403) {
+        alert('Acceso denegado. Por favor, verifica tu cuenta.');
+      } else {
+        alert('Error al iniciar sesión. Por favor, intenta más tarde.');
+      }
       console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.contentContainer}>

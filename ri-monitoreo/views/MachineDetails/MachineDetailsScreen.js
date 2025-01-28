@@ -6,16 +6,47 @@ import { Share, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styles from './styles';
 
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 function MachineDetailsScreen({ route }) {
-  const { serialNumber } = route.params; 
-  const { machine } = route.params;
+  const { id } = route.params; // Recibe solo el ID
+  console.log("ID recibido en MachineDetailsScreen:", id);
+
+  const [machine, setMachine] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const machineInfo = {
+
+  useEffect(() => {
+    
+    const fetchMachineData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/machines/${id}`);
+        const data = await response.json();
+        if (data) {
+          console.log("Machines -- MachineDetailsScreen", data);
+          setMachine(data);
+        } else {
+          Alert.alert('Error', 'No se encontró la información de la máquina.');
+        }
+      } catch (error) {
+        console.error('Error al buscar datos de la máquina:', error);
+        Alert.alert('Error', 'No se pudo cargar la información de la máquina.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMachineData();
+  }, [id]);
+
+  console.log("Machines -- MachineDetailsScreen", machine);
+
+  const machineInfo = React.useMemo(() => ({
     __v: machine?.__v || 0,
     id: machine?._id || 'ID no disponible',
     name: machine?.name || 'Nombre no disponible',
+    type: machine?.type || 'No disponible',
     installationDate: machine?.installationDate || 'No disponible',
     lastMaintenance: machine?.lastMaintenance || 'No disponible',
     historyMaintenance: {
@@ -26,25 +57,38 @@ function MachineDetailsScreen({ route }) {
       presionAlta: machine?.maintenanceHistory?.[0]?.presionAlta || 'No disponible',
       presionBaja: machine?.maintenanceHistory?.[0]?.presionBaja || 'No disponible'
     },
+  }), [machine]);
+  
+  // Mapear tipos a imágenes
+  const typeImages = {
+    "Aire Acondicionado": require('./3653252.png'),
+    "Caldera": require('./caldera.png'),
+    "Refrigerador": require('./refrigerator.png'),
+    "Elevador":require('./elevador-de-automoviles.png'),
+    // Agrega más tipos aquí
+    default: require('./logo.png'), // Imagen por defecto
   };
 
-  useEffect(() => {
-    // Simula la búsqueda de datos desde tu backend o base de datos local
-    const fetchMachineData = async () => {
-      try {
-        const response = await fetch(
-          `https://mi-backend.com/api/machines/${serialNumber}` // Cambia por tu API
-        );
-        const data = await response.json();
-        setMachine(data);
-      } catch (error) {
-        console.error("Error al buscar datos de la máquina:", error);
-      }
-    };
+  const getImageByType = (type) => {
+    return typeImages[type] || typeImages.default;
+  };
 
-    fetchMachineData();
-  }, [serialNumber]);
+  if (!id) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Error: No se recibió un ID válido.</Text>
+      </View>
+    );
+  }
+  
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Cargando información de la máquina...</Text>
+      </View>
+    );
+  }
   if (!machine) {
     return (
       <View style={styles.container}>
@@ -53,10 +97,7 @@ function MachineDetailsScreen({ route }) {
     );
   }
 
-  useEffect(() => {
-    console.log('Datos de la máquina recibidos:', machine);
-    console.log("Datos para el qr: ", machineInfo);
-  }, [machine]);
+ 
 
   const formatDate = (date) => {
     return date ? new Date(date).toLocaleDateString('es-ES', {
@@ -83,20 +124,29 @@ function MachineDetailsScreen({ route }) {
   };
 
   const openWhatsApp = (phoneNumber, message) => {
-    const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-
+    const url = `https://wa.me/${phoneNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
+  
     Linking.canOpenURL(url)
-      .then(supported => {
+      .then((supported) => {
         if (supported) {
           return Linking.openURL(url);
         } else {
-          Alert.alert('Error', 'WhatsApp no está instalado en este dispositivo');
+          Alert.alert('Error', 'WhatsApp no está instalado en este dispositivo o no se puede abrir el enlace.');
         }
       })
-      .catch(err => console.error('Error al abrir WhatsApp:', err));
+      .catch((err) => console.error('Error al abrir WhatsApp:', err));
   };
-
+  
   const maintenanceStatus = getMaintenanceStatus();
+  
+  // Construir el mensaje de WhatsApp dinámicamente
+  const whatsappMessage = `
+  Hola, necesito agendar un mantenimiento para mi máquina.
+  Nombre: ${machineInfo.name || 'No disponible'}
+  Numero de identificación: ${machineInfo.id || 'No disponible'}
+  Tipo: ${machineInfo.type || 'No disponible'}
+  Último mantenimiento: ${formatDate(machineInfo.lastMaintenance)}
+  `;
 
   const generatePDF = async () => {
     const lastMaintenance = machine?.maintenanceHistory?.[0] || {};
@@ -301,7 +351,7 @@ function MachineDetailsScreen({ route }) {
         
         {/* Información del Modelo */}
         <View style={styles.card}>
-        <Image source={require('./3653252.png')} style={styles.image} />
+        <Image source={getImageByType(machine.type)} style={styles.image} />
           <Text style={styles.title}>Modelo:</Text>
           <Text style={styles.modelName}>{machineInfo.name}</Text>
           <Text style={styles.title}>Fecha de Instalación :</Text>
@@ -349,14 +399,15 @@ function MachineDetailsScreen({ route }) {
           </View>
 
           {maintenanceStatus.status !== 'up-to-date' && (
-            <TouchableOpacity 
-              style={styles.whatsappButton} 
-              onPress={() => openWhatsApp('+541141651335', 'Hola, necesito agendar un mantenimiento para mi máquina.')}
-            >
-              <Ionicons style={styles.icon} name={'logo-whatsapp'} color={"white"} size={25}/>
-              <Text style={styles.buttonText}>Enviar Mensaje</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.whatsappButton}
+            onPress={() => openWhatsApp('+541141651335', whatsappMessage)}
+          >
+            <Ionicons style={styles.icon} name="logo-whatsapp" color="white" size={25} />
+            <Text style={styles.buttonText}>Enviar Mensaje</Text>
+          </TouchableOpacity>
+        )}
+
         </View>
 
         {/* Botón de Imprimir con Modal */}

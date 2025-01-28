@@ -305,4 +305,78 @@ export default StyleSheet.create({
         marginBottom: 5,
         textAlign: "center",
       },
+      screen2: {
+        flex: 1,
+        backgroundColor: '#1D1936',
+        padding: 20,
+      },
+      header: {
+        alignItems: 'center',
+        marginBottom: 30,
+        marginTop: 30
+      },
+      initialsCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#E8E8E8',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+      },
+      initialsText: {
+        color: '#1D1936',
+        fontSize: 32,
+        fontWeight: 'bold',
+      },
+      usernameText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
+      },
+      infoText: {
+        fontSize: 16,
+        color: '#fff',
+      },
+      formContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+      },
+      formLabel: {
+        fontSize: 14,
+        color: '#333',
+        marginBottom: 5,
+        marginTop: 15,
+      },
+      input: {
+        width: '100%',
+        height: 40,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        backgroundColor: '#f9f9f9',
+      },
+      saveButton: {
+        backgroundColor: '#1D1936',
+        paddingVertical: 12,
+        borderRadius: 8,
+        marginTop: 20,
+        alignItems: 'center',
+      },
+      saveButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+      },
+      errorText: {
+        color: 'red',
+        marginTop: 15,
+        textAlign: 'center',
+      },
 });

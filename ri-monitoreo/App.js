@@ -23,10 +23,13 @@ import OrdersList from './views/OrdersList/OrdersList.js';
 import NotificationView from './views/NotificationView/NotificationView.js';
 import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
 import ClientMachines from './views/ClientMachines/ClientMachines.js';
+import MachineListScreen from './views/MachineListScreen/MachineListScreen';
 
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
+import { Provider } from 'react-redux';
+import store from './redux/store.js';
+
 
 const Stack = createNativeStackNavigator();
 const API_URL = 'https://rosensteininstalaciones.com.ar/api';
@@ -37,7 +40,7 @@ const linking = {
   config: {
     screens: {
       HomeScreen: "",
-      MachineDetails: "machine/:serialNumber", // Ruta dinámica con serialNumber
+      MachineDetails: "machine/:id", // Ruta dinámica con serialNumber
     },
   },
 };
@@ -132,6 +135,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <MenuProvider>
+      <Provider store={store}>
         <AnimatedSplash
           isLoaded={isLoaded}
           logoImage={require('./assets/logo.png')}
@@ -153,9 +157,9 @@ export default function App() {
                   component={HomeScreen}
                   options={{
                     headerBackTitle: "Inicio",
-                    headerRight: () => <PlusButtonWithMenu />,
+                    headerRight: () => <PlusButtonWithMenu/>,
                     headerRightContainerStyle: {
-                      paddingRight: 10,
+                      paddingRight: 0,
                       justifyContent: 'center',
                       alignItems: 'center',
                     },
@@ -220,7 +224,7 @@ export default function App() {
                   headerTitleStyle: {
                     alignSelf: 'flex-start', // Alinea el título hacia la izquierda
                   },
-                  headerRight: () => <PlusButtonWithMenu />,
+                  headerRight: () => <PlusButtonWithMenu/>,
                   headerRightContainerStyle: {
                     paddingRight: 10,
                     justifyContent: 'center',
@@ -274,91 +278,17 @@ export default function App() {
               component={ClientMachines}
               options={{ title: 'Máquinas del Cliente' }}
                />
+               <Stack.Screen
+                name="MachineListScreen"
+                component={MachineListScreen}
+                options={{ headerTitle: "Lista de Máquinas" }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </AnimatedSplash>
+        </Provider>
       </MenuProvider>
     </GestureHandlerRootView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  shawdow: {
-    shadowColor: '#DDDDDD',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-  },
-  button: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  bottomBar: {},
-  btnCircleUp: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFF',
-    bottom: 30,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 1,
-  },
-  imgCircle: {
-    width: 30,
-    height: 30,
-    tintColor: 'gray',
-  },
-  tabbarItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  img: {
-    width: 30,
-    height: 30,
-  },
-  screen1: {
-    flex: 1,
-    backgroundColor: '#BFEFFF',
-  },
-  screen2: {
-    flex: 1,
-    backgroundColor: '#FFEBCD',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#10232A',
-  },
-  input: {
-    height: 40,
-    width: '100%',
-    borderColor: '#3D4D55',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: '#fff',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-  },
-});

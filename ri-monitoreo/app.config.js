@@ -3,35 +3,42 @@ export default ({ config }) => ({
     name: "ri-monitoreo",
     slug: "ri",
     version: "1.0.0",
+    scheme: "rosenstein",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/logo.png",
+    backgroundColor: "#1D1936",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/splash.png",
+      image: "./assets/logo.png",
       resizeMode: "contain",
       backgroundColor: "#1D1936"
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.riapp.ios", // Identificador único para iOS
+      bundleIdentifier: "com.riapp.ios",
       infoPlist: {
         UIBackgroundModes: ["fetch", "remote-notification"],
         NSUserTrackingUsageDescription:
-          "Este identificador se utilizará para enviarte notificaciones personalizadas."
+          "Este identificador se utilizará para enviarte notificaciones personalizadas.",
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: ["rosenstein"]
+          }
+        ]
       },
-      associatedDomains: ["applinks:rosensteininstalaciones.com.ar"] // Enlaces universales para iOS
+      associatedDomains: ["applinks:rosensteininstalaciones.com.ar"]
     },
     android: {
-      package: "com.appri.android", // Identificador único para Android
+      package: "com.appri.android",
       googleServicesFile: "./google-services.json",
       adaptiveIcon: {
         foregroundImage: "./assets/icon.png",
         backgroundColor: "#1D1936"
       },
-      "notification": {
-      "icon": "./assets/icon-noti.png",
-      "color": "#1D1936"
-    },
+      notification: {
+        icon: "./assets/icon-noti.png",
+        color: "#1D1936"
+      },
       permissions: [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
@@ -71,7 +78,7 @@ export default ({ config }) => ({
         projectId: "189830c1-cebf-44db-8a55-581f6004700b"
       }
     },
-    scheme: "rosenstein", // Esquema de URI para Deep Linking
+    scheme: "rosenstein",
     platforms: ["ios", "android"]
   }
 });

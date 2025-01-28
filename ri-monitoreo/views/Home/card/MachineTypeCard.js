@@ -6,6 +6,10 @@ import { View, Text, FlatList,TouchableOpacity } from 'react-native';
 
 // Componente para renderizar cada card
 const MachineCard = ({ type, count, navigation, machines }) => {
+   // Encuentra la primera máquina del tipo correspondiente
+   const machineOfType = machines.find((machine) => machine.type === type);
+   const filteredMachines = machines.filter((machine) => machine.type === type);
+  console.log(machines);
   const getIcon = () => {
     switch (type) {
       case 'Aire Acondicionado':
@@ -15,14 +19,15 @@ const MachineCard = ({ type, count, navigation, machines }) => {
       default:
         return <Ionicons name="cube-outline" size={50} color="#888" />;
     }
+    
   };
 
   return (
     <TouchableOpacity
       onPress={() =>
-        navigation.navigate('MachineDetails', {
-          machines: machines.filter((machine) => machine.type === type), // Filtra por tipo
-          type: type, // Título de la vista
+        navigation.navigate('MachineListScreen', {
+          machines: filteredMachines, // Pasa las máquinas de esta categoría
+          category: type, // También pasa el tipo para mostrar en el título
         })
       }
     >
