@@ -8,6 +8,18 @@ export default ({ config }) => ({
     icon: "./assets/logo.png",
     backgroundColor: "#1D1936",
     userInterfaceStyle: "light",
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+          "enableCodeScanner": true,
+          // optionally, if you want to record audio:
+          "enableMicrophonePermission": true,
+          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
+        }
+      ]
+    ],
     splash: {
       image: "./assets/logo.png",
       resizeMode: "contain",
@@ -17,6 +29,7 @@ export default ({ config }) => ({
       supportsTablet: true,
       bundleIdentifier: "com.riapp.ios",
       infoPlist: {
+        NSCameraUsageDescription: "Esta aplicación necesita acceso a la cámara para escanear códigos QR.",
         UIBackgroundModes: ["fetch", "remote-notification"],
         NSUserTrackingUsageDescription:
           "Este identificador se utilizará para enviarte notificaciones personalizadas.",
@@ -45,7 +58,8 @@ export default ({ config }) => ({
         "FOREGROUND_SERVICE",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "CAMERA"
       ],
       useNextNotificationsApi: true,
       intentFilters: [

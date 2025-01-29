@@ -305,4 +305,14 @@ export default StyleSheet.create({
         marginBottom: 5,
         textAlign: "center",
       },
+      scannerContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      camera: {
+        width: '100%',
+        height: '80%',
+      },
 });

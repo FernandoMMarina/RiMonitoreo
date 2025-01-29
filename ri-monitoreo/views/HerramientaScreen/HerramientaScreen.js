@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import Checkbox from "expo-checkbox";
+import { Checkbox } from 'react-native-paper';
 import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/userSlice';

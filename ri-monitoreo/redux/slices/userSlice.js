@@ -100,6 +100,7 @@ const userSlice = createSlice({
     name: 'user',
     initialState: {
         profile: null,
+        selectedUser: null, 
         loadingProfile: false,
         loadingPushToken: false,
         profileError: null,
@@ -111,6 +112,12 @@ const userSlice = createSlice({
         state.error = null;
         state.loadingProfile = false;
         state.loadingPushToken = false;
+      },
+      setSelectedUser: (state, action) => {
+        state.selectedUser = action.payload;
+      },
+      clearSelectedUser: (state) => {
+        state.selectedUser = null;
       },
     },
     extraReducers: (builder) => {
@@ -158,6 +165,6 @@ const userSlice = createSlice({
     },    
   });
   
-  export const { logout } = userSlice.actions;
+  export const { logout,setSelectedUser, clearSelectedUser  } = userSlice.actions;
   
   export default userSlice.reducer;
