@@ -116,7 +116,7 @@ const PlusButtonWithMenu = () => {
             <MenuOption onSelect={() => navigation.navigate('NewAirScreen')}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons style={{ marginRight: 8 }} name="snow-outline" color="black" size={20} />
-                <Text style={{ fontSize: 13 }}>Nuevo Aire</Text>
+                <Text style={{ fontSize: 13 }}>Nuevo Equipo</Text>
               </View>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate('NewMaintence')}>

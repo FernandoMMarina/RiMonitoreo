@@ -189,7 +189,7 @@ export default function App() {
                 name="NewAirScreen"
                 component={NewAirScreen}
                 options={{
-                  headerTitle: "Nuevo Aire",
+                  headerTitle: "Nuevo Maquina",
                   headerShown: true,
                   headerBackTitleVisible: false,
                 }}
@@ -207,7 +207,7 @@ export default function App() {
                 name="NewMaintence"
                 component={NewMaintence}
                 options={{
-                  headerTitle: "Nuevo Mantenimiento de Aire",
+                  headerTitle: "Nuevo Mantenimiento ",
                   headerShown: true,
                   headerBackTitleVisible: false,
                 }}
