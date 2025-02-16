@@ -6,6 +6,7 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         width: "100%",
+        height:"100%",
         backgroundColor: '#1D1936',
         alignItems: 'center',
         justifyContent: 'center',
@@ -147,6 +148,19 @@ export default StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
       },
+      buttonGuardar: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor:"#161616",
+        height:50,
+        borderRadius:10
+      },
+      buttonTextG: {
+        flex: 1,
+        justifyContent: 'center',
+        textAlign:"center",
+        color:"white"
+      },
       bottomBar: {},   
       scannerContainer: {
         ...StyleSheet.absoluteFillObject,
@@ -201,7 +215,6 @@ export default StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
       },
-
       container: {
         flex: 1,
         padding: 20,
@@ -305,4 +318,77 @@ export default StyleSheet.create({
         marginBottom: 5,
         textAlign: "center",
       },
+      container2: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: "#fff",
+        minHeight: 100,
+        borderRadius:10,
+      },
+      scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 20,
+      },
+      resultContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 80,
+        padding: 5,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      successText: {
+        color: 'green',
+        marginLeft: 10,
+        fontWeight: 'bold',
+      },
+      center: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      header: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 16,
+        textAlign: "center",
+      },
+      trabajoContainer: {
+        marginBottom: 16,
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 8,
+        backgroundColor: "#f9f9f9",
+      },
+      trabajoHeader: {
+        fontSize: 16,
+        fontWeight: "bold",
+        marginBottom: 8,
+      },
+      item: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 4,
+      },
+      itemText: {
+        marginLeft: 8,
+        fontSize: 16,
+      },
+      input:{
+        margin:10
+      },
+      errorText:{
+        margin:20
+      },
+      containerM:{
+        flex:1
+      }
+     
 });

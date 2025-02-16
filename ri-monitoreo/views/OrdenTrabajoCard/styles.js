@@ -147,6 +147,21 @@ export default StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
       },
+      buttonGuardar: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor:"#161616",
+        height:50,
+        borderRadius:10,
+        marginTop:20
+      },
+      buttonTextG: {
+        justifyContent: 'center',
+        textAlign:"center",
+        color:"white",
+        ontFamily: "IBM-Plex-Mono",  // Nombre EXACTO usado en useFonts
+        fontSize: 14,
+      },
       bottomBar: {},   
       scannerContainer: {
         ...StyleSheet.absoluteFillObject,
@@ -154,13 +169,10 @@ export default StyleSheet.create({
         alignItems: 'center',
       },
       closeButton: {
-        position: 'absolute',
-        bottom: 20, // Ajusta la distancia desde la parte inferior
-        left: '50%', // Lo posiciona en el centro horizontal
-        transform: [{ translateX: -25 }], // Centra el botón correctamente
-        backgroundColor: 'rgba(0, 0, 0, 0.6)', // Fondo oscuro semitransparente
-        borderRadius: 50,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 10,
         padding: 10,
+        marginBottom: 50,
       },
       closeButtonText: {
         color: 'white',
@@ -204,7 +216,6 @@ export default StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
       },
-
       container: {
         flex: 1,
         padding: 20,
@@ -262,7 +273,7 @@ export default StyleSheet.create({
         fontWeight:"bold"
       },
       card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#161616',
         borderRadius: 10,
         padding: 15,
         marginVertical: 10,
@@ -304,18 +315,119 @@ export default StyleSheet.create({
       },
       infoText: {
         fontSize: 16,
-        color: "#D1D1D1",
+        color: "#333",
         marginBottom: 5,
         textAlign: "center",
       },
-      scannerContainer: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        justifyContent: 'center',
+      container2: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: "#fff",
+        minHeight: 100,
+        borderRadius:10,
+      },
+      scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 20,
+      },
+      resultContainer: {
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 80,
+        padding: 5,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
       },
-      camera: {
-        width: '100%',
-        height: '80%',
+      successText: {
+        color: 'green',
+        marginLeft: 10,
+        fontWeight: 'bold',
       },
+      center: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      header: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 16,
+        textAlign: "center",
+      },
+      trabajoContainer: {
+        marginBottom: 16,
+        padding: 8,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 8,
+        backgroundColor: "#f9f9f9",
+      },
+      trabajoHeader: {
+        fontSize: 16,
+        fontWeight: "bold",
+        marginBottom: 8,
+      },
+      item: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 4,
+      },
+      itemText: {
+        marginLeft: 8,
+        fontSize: 16,
+      },
+      input:{
+        margin:10
+      },
+      errorText:{
+        margin:20
+      },
+      cardHeader:{
+        backgroundColor: '#4B4F55',
+        borderRadius: 10,
+        padding: 15,
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
+      },
+      label:{
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#161616',
+        marginBottom: 5,
+      },
+     
+      cardInfo:{
+        backgroundColor: '#8F9295',
+        borderRadius: 10,
+        padding: 15,
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
+      },
+      label:{
+        fontFamily: "IBM-Plex-Mono",  // Nombre EXACTO usado en useFonts
+    fontSize: 18,
+      },
+      picker:{
+
+      },
+      value:{
+        color:"#161616",
+        margin:5
+      }
+     
+
 });

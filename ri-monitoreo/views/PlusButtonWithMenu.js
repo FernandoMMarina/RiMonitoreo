@@ -32,10 +32,13 @@ const PlusButtonWithMenu = () => {
   if (error) {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-        <Text>Error al cargar perfil: {error}</Text>
+        <Text>
+          Error al cargar perfil: {typeof error === 'object' ? JSON.stringify(error) : error}
+        </Text>
       </View>
     );
   }
+  
 
   return (
     <Menu>
@@ -117,6 +120,12 @@ const PlusButtonWithMenu = () => {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons style={{ marginRight: 8 }} name="snow-outline" color="black" size={20} />
                 <Text style={{ fontSize: 13 }}>Nuevo Equipo</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('AsignarQR')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="qr-code-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Asignar QR</Text>
               </View>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate('NewMaintence')}>

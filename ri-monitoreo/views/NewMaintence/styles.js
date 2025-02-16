@@ -33,14 +33,19 @@ export default StyleSheet.create({
     borderRadius: 5,
   },
   siguienteButton:{
-    backgroundColor:"#161616",
-    height:60
+        
+        justifyContent: 'center',
+        backgroundColor:"#161616",
+        height:80,
+        borderRadius:10,
+        marginBottom:30
   },
   siguienteText:{
-    color:"#fff",
-    textAlign:"center",
-    alignContent:"center",
-    alignItems:"center"
+        justifyContent: 'center',
+        textAlign:"center",
+        color:"white",
+        ontFamily: "IBM-Plex-Mono",  // Nombre EXACTO usado en useFonts
+        fontSize: 18,
   },
   label: {
     fontSize: 16,
@@ -63,4 +68,12 @@ export default StyleSheet.create({
     marginTop: 5,
     borderRadius: 5,
   },
+  qrButton:{
+    backgroundColor:"black",
+    alignItems:"center",
+    alignContent:"center",
+    marginTop:30,
+    height:50,
+    padding:5
+  }
 });

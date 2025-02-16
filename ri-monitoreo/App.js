@@ -29,6 +29,8 @@ import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { Provider } from 'react-redux';
 import store from './redux/store.js';
+import MachineSearchComponent from './views/MachineSearchComponent/machineSearchComponent.js';
+
 
 
 const Stack = createNativeStackNavigator();
@@ -49,6 +51,8 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userId, setUserId] = useState("");
+
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -282,6 +286,11 @@ export default function App() {
                 name="MachineListScreen"
                 component={MachineListScreen}
                 options={{ headerTitle: "Lista de Máquinas" }}
+              />
+              <Stack.Screen
+                name="AsignarQR"
+                component={MachineSearchComponent}
+                options={{ headerTitle: "Asignar QR" }}
               />
             </Stack.Navigator>
           </NavigationContainer>

@@ -1,18 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert, Text, FlatList, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Alert, Text, FlatList, StyleSheet, TouchableOpacity, Animated,Modal } from 'react-native';
 import { CurvedBottomBarExpo } from 'react-native-curved-bottom-bar';
-
+import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import styles from './styles';
 import Screen1 from '../Screen1/Screen1';
 import Screen2 from '../Screen2/Screen2';
 
 
+
+const API_URL = 'https://rosensteininstalaciones.com.ar/api';
+
 const HomeScreen = () => {
   const [scanned, setScanned] = useState(false);
   const [showScanner, setShowScanner] = useState(false); 
+  const [modalIsVisible, setModalIsVisible] = useState(false); 
+  const [permission, requestPermission] = useCameraPermissions(); 
+  const navigation = useNavigation(); // Agregar navegación
 
+  async function handleOpenCamera() {
+    try{
+      const {granted} = await requestPermission()
+
+      if(!granted){
+        return Alert.alert("Camara","Necesita habilitar el uso de la camara")
+      }
+
+      setModalIsVisible(true)
+    }catch(error){
+      console.log(error)
+    }
+    
+  }
+
+  async function handleBarCodeScanned({ data }) {
+    if (scanned) return; // Evita escanear múltiples veces
+  
+    console.log("Código escaneado:", data);
+  
+    const match = data.match(/SN\d{6}/);
+    if (!match) {
+      Alert.alert("Error", "Formato de código QR inválido.");
+      return;
+    }
+  
+    const serialNumber = match[0];
+    console.log("Número de serie extraído:", serialNumber);
+  
+    try {
+      setScanned(true); // Evita múltiples escaneos
+      setModalIsVisible(false); // Cierra la cámara inmediatamente
+      
+      const response = await fetch(`https://rosensteininstalaciones.com.ar/api/machines/machine-by-serial/${serialNumber}`);
+      const result = await response.json();
+      const id = result.machineId;
+  
+      if (response.ok) {
+        console.log("Machine ID encontrado:", id);
+  
+        if (!result.machineId) {
+          Alert.alert("Error", "El servidor no devolvió un ID válido.");
+          return;
+        }
+  
+        navigation.navigate("MachineDetails", { id: id });
+  
+      } else {
+        Alert.alert("Error", result.message || "No se encontró la máquina.");
+      }
+    } catch (error) {
+      console.error("Error al obtener el ID de la máquina:", error);
+      Alert.alert("Error", "No se pudo conectar con el servidor.");
+    } finally {
+      setScanned(false); // Permitir nuevos escaneos después de completar la navegación
+    }
+  }
+  
   const _renderIcon = (routeName, selectedTab) => {
     let icon = '';
     switch (routeName) {
@@ -53,10 +117,7 @@ const HomeScreen = () => {
           <Animated.View style={styles.btnCircleUp}>
             <TouchableOpacity
               style={styles.circleButton}
-              onPress={() => {
-                setShowScanner(!showScanner);
-                setScanned(false); // Reiniciar el estado al abrir el escáner.
-              }}
+              onPress={handleOpenCamera}
             >
               <Ionicons name={'qr-code-outline'} color="#1D1936" size={25} />
             </TouchableOpacity>
@@ -76,23 +137,21 @@ const HomeScreen = () => {
         />
       </CurvedBottomBarExpo.Navigator>
 
-      {showScanner && (
-      <View style={styles.scannerContainer}>
-        {hasPermission === null && <Text>Solicitando permiso para usar la cámara...</Text>}
-        {hasPermission === false && (
-          <Text>No tienes permiso para usar la cámara. Por favor, habilítalo en configuraciones.</Text>
-        )}
-        {hasPermission === true && (
-          <Camera
-            style={StyleSheet.absoluteFillObject}
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          />
-        )}
-        <TouchableOpacity style={styles.closeButton} onPress={() => setShowScanner(false)}>
-          <Ionicons name="close-circle-outline" size={50} color="white" />
-        </TouchableOpacity>
-      </View>
-    )}
+          <Modal visible={modalIsVisible} style={{flex:1}}>
+            <CameraView
+              style={{flex:1}}
+              facing="back"
+              onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            >
+
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalIsVisible(false)}>
+              <Ionicons name="close-circle-outline" size={50} color="white" />
+            </TouchableOpacity>
+            </CameraView>
+          </Modal>
+        
+       
+    
     </View>
   );
 };

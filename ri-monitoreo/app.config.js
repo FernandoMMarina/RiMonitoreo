@@ -26,8 +26,8 @@ export default ({ config }) => ({
       backgroundColor: "#1D1936"
     },
     ios: {
-      supportsTablet: true,
       bundleIdentifier: "com.riapp.ios",
+      supportsTablet: true,
       infoPlist: {
         NSCameraUsageDescription: "Esta aplicación necesita acceso a la cámara para escanear códigos QR.",
         UIBackgroundModes: ["fetch", "remote-notification"],

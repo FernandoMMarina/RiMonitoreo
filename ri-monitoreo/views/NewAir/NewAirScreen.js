@@ -30,7 +30,7 @@ const NewAirScreen= () => {
   ]);
 
   const [machineData, setMachineData] = useState({
-    name: "",
+    name: "", // 🔹 Asegurar que siempre sea string
     installationDate: "",
     type: "",
     manufacturer: "",
@@ -49,53 +49,54 @@ const NewAirScreen= () => {
     loadCapacity: "",
     liftHeight: "",
   });
-
-
+  
 
   const handleInputChange = (name, value) => {
-    setMachineData((prev) => ({ ...prev, [name]: value }));
+    let formattedValue = value;
+  
+    // Solo validar si el campo es numérico
+    if (["coolingCapacity", "heatingCapacity", "powerOutput", "maxPressure", "airFlow"].includes(name)) {
+      if (!/^\d*\.?\d*$/.test(value)) {
+        return; // Si no es un número válido, no actualizar el estado
+      }
+    }
+  
+    setMachineData((prev) => ({ ...prev, [name]: formattedValue }));
   };
-
+  
+  
+  const handleNameChange = (value) => {
+    if (typeof value !== "string") return; // Asegurar que siempre sea string
+    setMachineData((prev) => ({ ...prev, name: value.trimStart() })); // Evita espacios en blanco al inicio
+  };
+  
 
 
   const parseNumericValue = (value) => {
-    return parseFloat(value.replace(/[^\d.-]/g, "")); // Elimina letras y deja solo números
+    if (!value) return ""; // Si el campo está vacío, devolver cadena vacía
+  
+    const numericValue = value.replace(/[^0-9.]/g, ""); // Elimina cualquier carácter que no sea número o punto
+  
+    if (numericValue === "") return ""; // Si después de limpiar queda vacío, devolver cadena vacía
+  
+    return numericValue; // Devolver el valor limpio sin letras
   };
   
   
   const handleSubmit = async () => {
-    if (!selectedUser) {
-      Alert.alert("Error", "Por favor selecciona un usuario.");
-      return;
-    }
-  
-    const formattedData = {
-      ...machineData,
-      coolingCapacity: parseNumericValue(machineData.coolingCapacity), // Convierte a número
-      heatingCapacity: parseNumericValue(machineData.heatingCapacity), // Convierte a número
-    };
+    if (!validateForm()) return;
   
     try {
       const token = await AsyncStorage.getItem("token");
   
-      // Crear máquina en la API
       const machineResponse = await axios.post(
         "https://rosensteininstalaciones.com.ar/api/machines",
-        formattedData,
+        machineData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      const machineId = machineResponse.data._id;
+      Alert.alert("Éxito", "Máquina creada correctamente.");
   
-      // Asignar máquina al usuario seleccionado
-      await axios.post(
-        "https://rosensteininstalaciones.com.ar/api/users/users/add-machine",
-        { userId: selectedUser._id, machineId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
-      Alert.alert("Éxito", "Máquina creada y asignada correctamente.");
-      
       // Reiniciar formulario
       setMachineData({
         name: "",
@@ -107,7 +108,7 @@ const NewAirScreen= () => {
       });
   
     } catch (error) {
-      console.error("Error creando máquina o asignándola al usuario:", error);
+      console.error("Error al crear máquina:", error.response?.data || error.message);
       Alert.alert("Error", "No se pudo crear la máquina.");
     }
   };
@@ -117,13 +118,12 @@ const NewAirScreen= () => {
   const GeneralTab = () => (
     <View style={styles.tabContent}>
       <Text style={styles.label}>Nombre de la máquina</Text>
-      <Text>{selectedUser?.username}</Text> 
-      <TextInput
-        style={styles.input}
-        value={machineData.name}
-        onChangeText={(value) => handleInputChange("name", value)}
-        placeholder="Ejemplo: Aire acondicionado"
-      />
+        <TextInput
+          style={styles.input}
+          value={machineData.name} // 🔹 Evita valores `undefined`
+          placeholder="Ejemplo: Aire acondicionado"
+        />
+
       <Text style={styles.label}>Tipo de máquina</Text>
       <Picker
         selectedValue={machineData.type}

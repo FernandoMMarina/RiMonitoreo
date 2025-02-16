@@ -3,11 +3,9 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
-  FlatList,
   TouchableOpacity,
   Alert,
+  Modal
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -16,6 +14,11 @@ import axios from "axios";
 import { TabView, TabBar } from "react-native-tab-view";
 import { useWindowDimensions } from "react-native";
 import styles from "./styles";
+import { useQRCodeScanner } from "../hooks/useQRCodeScanner";  // ✅ Importamos el hook
+import { fetchMachineBySerial } from "../utils/fetchMachineBySerial";  // ✅ Importamos la función para buscar máquinas
+import { CameraView } from "expo-camera";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
 
 const API_URL = "https://rosensteininstalaciones.com.ar/api/maintenance";
 
@@ -28,8 +31,16 @@ const NewMaintenanceScreen = () => {
   ]);
 
   const user = useSelector((state) => state.user.profile);
+  const {
+    scanned,
+    setScanned,
+    modalIsVisible,
+    handleOpenCamera,
+    handleCloseCamera,
+    setModalIsVisible,
+  } = useQRCodeScanner();
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
+  const { control, handleSubmit, setValue, formState: { errors }, reset } = useForm({
     defaultValues: {
       machineId: "",
       date: "",
@@ -45,16 +56,48 @@ const NewMaintenanceScreen = () => {
     },
   });
 
+  // ✅ Función para manejar el escaneo y actualizar el campo de la máquina
+  async function handleBarCodeScanned({ data }) {
+    if (scanned) return;
+
+    console.log("Código escaneado:", data);
+    const match = data.match(/SN\d{6}/);
+    if (!match) {
+      Alert.alert("Error", "Formato de código QR inválido.");
+      return;
+    }
+
+    const serialNumber = match[0];
+    console.log("Número de serie extraído:", serialNumber);
+
+    try {
+      setScanned(true);
+      setModalIsVisible(false);
+
+      const machineId = await fetchMachineBySerial(serialNumber);
+      if (machineId) {
+        setValue("machineId", machineId);  // ✅ Se actualiza el formulario con el ID de la máquina
+        Alert.alert("Éxito", `Máquina encontrada: ${machineId}`);
+      } else {
+        Alert.alert("Error", "El servidor no devolvió un ID válido.");
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setScanned(false);
+    }
+  }
+
   const onSubmit = async (data) => {
     if (!user || !user._id) {
-      alert("Error", "No se pudo obtener la información del usuario.");
+      Alert.alert("Error", "No se pudo obtener la información del usuario.");
       return;
     }
 
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        alert("Error", "Usuario no autenticado.");
+        Alert.alert("Error", "Usuario no autenticado.");
         return;
       }
 
@@ -77,12 +120,12 @@ const NewMaintenanceScreen = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("Éxito", "Mantenimiento registrado correctamente.");
+      Alert.alert("Éxito", "Mantenimiento registrado correctamente.");
       reset();
       setIndex(0);
     } catch (error) {
       console.error("Error creando mantenimiento:", error);
-      alert("Error", "No se pudo registrar el mantenimiento.");
+      Alert.alert("Error", "No se pudo registrar el mantenimiento.");
     }
   };
 
@@ -95,14 +138,19 @@ const NewMaintenanceScreen = () => {
             <Controller
               control={control}
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Ejemplo: 123456"
-                  placeholderTextColor="#666"
-                />
+                <View style={styles.qrContainer}>
+                  <TextInput
+                    style={styles.input}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Ejemplo: 123456"
+                    placeholderTextColor="#666"
+                  />
+                  <TouchableOpacity style={styles.qrButton} onPress={handleOpenCamera}>
+                    <Ionicons name="qr-code-outline" size={30} color="white" />
+                  </TouchableOpacity>
+                </View>
               )}
               name="machineId"
               rules={{ required: true }}
@@ -126,66 +174,6 @@ const NewMaintenanceScreen = () => {
               rules={{ required: true }}
             />
             {errors.date && <Text style={styles.errorText}>Fecha es obligatoria</Text>}
-
-            <Text style={styles.label}>Ubicación</Text>
-            <Controller
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Ejemplo: Planta Industrial"
-                  placeholderTextColor="#666"
-                />
-              )}
-              name="location"
-              rules={{ required: true }}
-            />
-            {errors.location && <Text style={styles.errorText}>Ubicación es obligatoria</Text>}
-          </View>
-        );
-      case "details":
-        return (
-          <View style={styles.tabContent}>
-            <Text style={styles.label}>Frigorías</Text>
-            <Controller
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Ejemplo: 3500"
-                  placeholderTextColor="#666"
-                  keyboardType="numeric"
-                />
-              )}
-              name="frigorias"
-              rules={{ required: true }}
-            />
-            {errors.frigorias && <Text style={styles.errorText}>Frigorias es obligatorio</Text>}
-
-            <Text style={styles.label}>Evaporadora</Text>
-            <Controller
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Ejemplo: 2.5 kW"
-                  placeholderTextColor="#666"
-                  keyboardType="numeric"
-                />
-              )}
-              name="evaporadora"
-              rules={{ required: true }}
-            />
-            {errors.evaporadora && <Text style={styles.errorText}>Evaporadora es obligatorio</Text>}
           </View>
         );
       default:
@@ -197,7 +185,7 @@ const NewMaintenanceScreen = () => {
     <View style={styles.container}>
       <TabView
         navigationState={{ index, routes }}
-        renderScene={renderScene} // ✅ Se usa una función en lugar de SceneMap
+        renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
         renderTabBar={(props) => (
@@ -215,10 +203,21 @@ const NewMaintenanceScreen = () => {
       <TouchableOpacity style={styles.siguienteButton} onPress={handleSubmit(onSubmit)}>
         <Text style={styles.siguienteText}>Guardar Mantenimiento</Text>
       </TouchableOpacity>
+
+      {/* ✅ Modal para el escáner de QR */}
+      <Modal visible={modalIsVisible} style={{ flex: 1 }}>
+        <CameraView
+          style={{ flex: 1 }}
+          facing="back"
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        >
+          <TouchableOpacity style={styles.closeButton} onPress={handleCloseCamera}>
+            <Ionicons name="close-circle-outline" size={50} color="white" />
+          </TouchableOpacity>
+        </CameraView>
+      </Modal>
     </View>
   );
 };
-
-
 
 export default NewMaintenanceScreen;
