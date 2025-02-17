@@ -64,7 +64,10 @@ function MachineDetailsScreen({ route }) {
     "Aire Acondicionado": require('./3653252.png'),
     "Caldera": require('./caldera.png'),
     "Refrigerador": require('./refrigerator.png'),
-    "Elevador":require('./elevador-de-automoviles.png'),
+    "AutoElevador":require('./elevador-de-automoviles.png'),
+    "Cabina de Pintura":require('./spray-paint.png'),
+    "Tablero Electrico":require('./electrical-panel.png'),
+    "Compresor de Aire":require('./air-compressor.png'),
     // Agrega más tipos aquí
     default: require('./logo.png'), // Imagen por defecto
   };

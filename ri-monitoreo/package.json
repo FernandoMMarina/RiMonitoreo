@@ -18,7 +18,8 @@
           "@expo/metro-config",
           "dotenv",
           "react-native-animated-splash-screen",
-          "react-native-progress-bar-multi-step"
+          "react-native-progress-bar-multi-step",
+          "react-native-collapsible-tab-view"
         ]
       }
     }
@@ -37,22 +38,22 @@
     "axios": "^1.7.3",
     "babel-preset-expo": "~12.0.0",
     "dotenv": "^16.4.5",
-    "expo": "^52.0.28",
+    "expo": "~52.0.35",
     "expo-barcode-scanner": "^13.0.1",
-    "expo-camera": "~16.0.14",
+    "expo-camera": "~16.0.16",
     "expo-checkbox": "~4.0.1",
-    "expo-dev-client": "~5.0.10",
+    "expo-dev-client": "~5.0.12",
     "expo-device": "~7.0.2",
     "expo-font": "~13.0.3",
     "expo-notifications": "~0.29.13",
     "expo-print": "~14.0.3",
-    "expo-splash-screen": "~0.29.21",
+    "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
     "jwt-decode": "^4.0.0",
     "metro": "^0.81.0",
     "react": "18.3.1",
     "react-hook-form": "^7.51.0",
-    "react-native": "0.76.6",
+    "react-native": "0.76.7",
     "react-native-animatable": "^1.4.0",
     "react-native-animated-splash-screen": "^2.0.5",
     "react-native-collapsible-tab-view": "^8.0.0",
@@ -77,8 +78,7 @@
     "react-native-worklets-core": "^1.5.0",
     "react-navigation-header-buttons": "^11.2.1",
     "react-redux": "^9.2.0",
-    "redux": "^5.0.1",
-    "vision-camera-qrcode-scanner": "^0.1.4"
+    "redux": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -149,9 +149,6 @@ const HomeScreen = () => {
             </TouchableOpacity>
             </CameraView>
           </Modal>
-        
-       
-    
     </View>
   );
 };

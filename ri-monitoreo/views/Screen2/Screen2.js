@@ -11,8 +11,9 @@ const Screen2 = () => {
   const { profile, loading, error } = useSelector((state) => state.user);
   const username = profile?.username || 'Usuario';
   const email = profile?.email || 'No disponible';
-  const currentAddress = profile?.direcion || 'No disponible';
-  const direccion = profile?.direccion || {};
+  const currentAddress = profile?.sucursal?.direccion || 'No disponible';
+const direccion = profile?.sucursal?.direccion || {};
+
   console.log("Direcion-- ",profile )
   const currentPhone = profile?.telefono || 'No disponible';
 
@@ -46,16 +47,21 @@ const Screen2 = () => {
 
       {/* Formulario de edición */}
       <View style={styles.formContainer}>
-       
-         {/* Mostrando dirección */}
-         <Text style={styles.formLabel}>Dirección:</Text>
-        {profile?.direccion ? (
-          <Text style={styles.currentInfo}>
-            {`${profile?.direccion.calle || ''} ${profile?.direccion.numero || ''}, ${profile?.direccion.ciudad || ''}, ${profile?.direccion.provincia || ''}, ${profile.direccion.codigoPostal || ''}`}
-          </Text>
-        ) : (
-          <Text style={styles.currentInfo}>No disponible</Text>
-        )}
+      <Text style={styles.formLabel}>Sucursal:</Text>
+      <Text style={styles.currentInfo}>
+    {`${profile?.sucursales[0].nombre || 'No Disponible'} `}
+  </Text>
+  <Text style={styles.formLabel}>Dirección:</Text>
+{profile?.sucursales?.length > 0 ? (
+  <Text style={styles.currentInfo}>
+    {`${profile.sucursales[0].direccion.calle} ${profile.sucursales[0].direccion.numero}, ${profile.sucursales[0].direccion.ciudad}, ${profile.sucursales[0].direccion.provincia}, ${profile.sucursales[0].direccion.codigoPostal}`}
+  </Text>
+) : (
+  <Text style={styles.currentInfo}>No disponible</Text>
+)}
+
+
+
 
 
         <Text style={styles.formLabel}>Nueva dirección</Text>

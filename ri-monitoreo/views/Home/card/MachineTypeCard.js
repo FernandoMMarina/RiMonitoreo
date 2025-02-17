@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './styles'; 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { View, Text, FlatList,TouchableOpacity } from 'react-native';
+import { View, Text, FlatList,TouchableOpacity,Image } from 'react-native';
 
 
 // Componente para renderizar cada card
@@ -13,9 +13,17 @@ const MachineCard = ({ type, count, navigation, machines }) => {
   const getIcon = () => {
     switch (type) {
       case 'Aire Acondicionado':
-        return <Ionicons name="snow-outline" size={50} color="#1E90FF" />;
+        return <Image source={require('../../../assets/icons/3653252.png')} style={{ width: 50, height: 50 }} />;
+      case 'Cabina de Pintura':
+          return <Image source={require('../../../assets/icons/spray-paint.png')} style={{ width: 50, height: 50 }} />;
+      case 'Compresor de Aire':
+          return <Image source={require('../../../assets/icons/air-compressor.png')} style={{ width: 50, height: 50 }} />;
+      case 'AutoElevador':
+          return <Image source={require('../../../assets/icons/elevador-de-automoviles.png')} style={{ width: 50, height: 50 }} />;
+      case 'Tablero Electrico':
+            return <Image source={require('../../../assets/icons/electrical-panel.png')} style={{ width: 50, height: 50 }} />;
       case 'Caldera':
-        return <Ionicons name="flame-outline" size={50} color="#FF4500" />;
+        return <Image source={require('../../../assets/icons/caldera.png')} style={{ width: 50, height: 50 }} />;
       default:
         return <Ionicons name="cube-outline" size={50} color="#888" />;
     }

@@ -421,13 +421,21 @@ export default StyleSheet.create({
         fontFamily: "IBM-Plex-Mono",  // Nombre EXACTO usado en useFonts
     fontSize: 18,
       },
-      picker:{
-
-      },
+      
       value:{
         color:"#161616",
         margin:5
-      }
+      },
+      herramientaItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+        paddingVertical: 4,
+      },
+      herramientaText: {
+        fontSize: 16,
+        color: '#161616',
+        marginLeft: 8, // Espacio entre el check y el texto
+      },
      
-
 });

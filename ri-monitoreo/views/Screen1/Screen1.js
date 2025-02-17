@@ -17,6 +17,7 @@ const Screen1 = () => {
 
   const { profile, loading, error } = useSelector((state) => state.user);
   const { machines } = useSelector((state) => state.machines);
+  
 
   useEffect(() => {
     dispatch(fetchUserProfile());
@@ -37,6 +38,7 @@ const Screen1 = () => {
         const response = await axios.get(
           `https://rosensteininstalaciones.com.ar/api/trabajos/tecnicos/${profile?.id}`
         );
+        console.log("trabajos",response.data.data)
         setTrabajo(response.data.data || []);
       } catch (error) {
         console.error('Error al obtener el trabajo:', error);
@@ -67,31 +69,33 @@ const Screen1 = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.titleCScreen1}>
-        <Text style={{ fontWeight: 'bold' }}>
-          {profile?.gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
+    <View style={styles.containerM}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.titleCScreen1}>
+          <Text style={{ fontWeight: 'bold' }}>
+            {profile?.gender === 'female' ? '¡Bienvenida! ' : '¡Bienvenido! '}
+          </Text>
+          <Text>{profile?.username || 'Usuario'}</Text>
         </Text>
-        <Text>{profile?.username || 'Usuario'}</Text>
-      </Text>
-  
-      {profile?.role === 'user' ? (
-        <UserView
-          idCliente={profile?.userId}
-          machines={machines}
-          userId={profile.userId}
-          navigation={navigation}
-        />
-      ) : profile?.role === 'technical' || profile?.role === 'admin' ? (
-        <View style={{ margin: 0 }}>
-          {trabajo.map((t) => (
-            <View key={t._id} style={{ height: 600, marginBottom: 50 }}>
-              <OrdenTrabajoCard2 trabajo={t} />
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </ScrollView>
+    
+        {profile?.role === 'user' ? (
+          <UserView
+            idCliente={profile?.userId}
+            machines={machines}
+            userId={profile.userId}
+            navigation={navigation}
+          />
+        ) : profile?.role === 'technical' || profile?.role === 'admin' ? (
+          <View style={{ margin: 0 }}>
+            {trabajo.map((t) => (
+              <View key={t._id} style={{ height: 600, marginBottom: 50 }}>
+                <OrdenTrabajoCard2 trabajo={t} />
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </ScrollView>
+    </View>
   );
   
 };

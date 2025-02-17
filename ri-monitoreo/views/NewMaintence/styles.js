@@ -25,6 +25,7 @@ export default StyleSheet.create({
   tabContent: {
     flex: 1,
     padding: 16,
+    backgroundColor:"#161616"
   },
   listItem: {
     padding: 10,
@@ -33,12 +34,11 @@ export default StyleSheet.create({
     borderRadius: 5,
   },
   siguienteButton:{
-        
         justifyContent: 'center',
         backgroundColor:"#161616",
         height:80,
         borderRadius:10,
-        marginBottom:30
+        marginBottom:110
   },
   siguienteText:{
         justifyContent: 'center',
