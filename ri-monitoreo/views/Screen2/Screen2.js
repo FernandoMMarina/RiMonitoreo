@@ -14,6 +14,9 @@ const Screen2 = () => {
   const currentAddress = profile?.sucursal?.direccion || 'No disponible';
 const direccion = profile?.sucursal?.direccion || {};
 
+console.log("Direccion", direccion);
+
+
   console.log("Direcion-- ",profile )
   const currentPhone = profile?.telefono || 'No disponible';
 
@@ -49,8 +52,8 @@ const direccion = profile?.sucursal?.direccion || {};
       <View style={styles.formContainer}>
       <Text style={styles.formLabel}>Sucursal:</Text>
       <Text style={styles.currentInfo}>
-    {`${profile?.sucursales[0].nombre || 'No Disponible'} `}
-  </Text>
+  {`${profile?.sucursales?.[0]?.nombre || 'No Disponible'} `}
+</Text>
   <Text style={styles.formLabel}>Dirección:</Text>
 {profile?.sucursales?.length > 0 ? (
   <Text style={styles.currentInfo}>
