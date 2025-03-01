@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Alert, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/userSlice';
-import { fetchVisits } from '../../redux/slices/visitsSlice'; // Asegúrate de importar correctamente
+import { fetchVisits } from '../../redux/slices/visitsSlice';
 import styles from './styles';
 
 // Componente para mostrar cuando no hay visitas programadas
@@ -109,8 +109,8 @@ const MaintenanceVisitStatus = () => {
 
   if (error) {
     return (
-      <View style={{marginTop:20}}>
-        <NoVisits/>
+      <View style={{ marginTop: 20 }}>
+        <NoVisits onOpenWhatsApp={openWhatsApp} /> {/* Pasar onOpenWhatsApp */}
       </View>
     );
   }

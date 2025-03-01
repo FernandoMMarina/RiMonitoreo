@@ -5,30 +5,38 @@ import * as Print from 'expo-print';
 import { Share, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styles from './styles';
-
+import axios from 'axios';
 const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 function MachineDetailsScreen({ route }) {
-  const { id } = route.params; // Recibe solo el ID
-  console.log("ID recibido en MachineDetailsScreen:", id);
-
+  const { id, serialNumber } = route.params; // Recibe ambos parámetros
   const [machine, setMachine] = useState(null);
   const [loading, setLoading] = useState(true);
+  console.log("ID recibido en MachineDetailsScreen:", id);
+  
+  
   const [modalVisible, setModalVisible] = useState(false);
 
 
   useEffect(() => {
-    
     const fetchMachineData = async () => {
       try {
-        const response = await fetch(`${API_URL}/machines/${id}`);
-        const data = await response.json();
-        if (data) {
-          console.log("Machines -- MachineDetailsScreen", data);
-          setMachine(data);
-        } else {
-          Alert.alert('Error', 'No se encontró la información de la máquina.');
+        let machineId = id;
+
+        // Si no hay ID pero hay número de serie, buscar el ID
+        if (!machineId && serialNumber) {
+          const serialResponse = await axios.get(`${API_URL}/machines/serial/${serialNumber}`);
+          machineId = serialResponse.data.machineId; // Suponiendo que el endpoint devuelve { machineId: "..." }
         }
+
+        // Si aún no hay ID, mostrar error
+        if (!machineId) {
+          throw new Error('No se pudo obtener el ID de la máquina.');
+        }
+
+        // Obtener los detalles de la máquina usando el ID
+        const machineResponse = await axios.get(`${API_URL}/machines/${machineId}`);
+        setMachine(machineResponse.data);
       } catch (error) {
         console.error('Error al buscar datos de la máquina:', error);
         Alert.alert('Error', 'No se pudo cargar la información de la máquina.');
@@ -38,7 +46,7 @@ function MachineDetailsScreen({ route }) {
     };
 
     fetchMachineData();
-  }, [id]);
+  }, [id, serialNumber]);
 
   console.log("Machines -- MachineDetailsScreen", machine);
 
@@ -76,9 +84,10 @@ function MachineDetailsScreen({ route }) {
     return typeImages[type] || typeImages.default;
   };
 
-  if (!id) {
+  if (!id && !serialNumber) {
     return (
       <View style={styles.container}>
+        <Text>{id}</Text>
         <Text style={styles.loadingText}>Error: No se recibió un ID válido.</Text>
       </View>
     );

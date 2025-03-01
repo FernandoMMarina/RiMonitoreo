@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AnimatedSplash from "react-native-animated-splash-screen";
@@ -62,21 +63,34 @@ export default function App() {
   };
 
   // Manejo del deep linking
-  const handleDeepLink = async (url) => {
-    if (url) {
-      const route = url.replace(/.*?:\/\//g, ''); // Elimina el prefijo "rosenstein://"
-      const routeParts = route.split('/'); // Divide la ruta en partes
-      if (routeParts[0] === 'machine' && routeParts[1]) {
-        const serialNumber = routeParts[1]; // Obtiene el número de serie
-        const machineId = await getMachineIdFromSerialNumber(serialNumber); // Obtiene el ID de la máquina
-        if (machineId) {
-          // Redirige a la pantalla de detalles de la máquina con el ID
-          navigation.navigate('MachineDetails', { id: machineId });
-        } else {
-          console.error('No se pudo obtener el ID de la máquina');
-        }
-      }
+  const handleDeepLink = async (url, navigation) => {
+    if (!url) {
+      Alert.alert('Error', 'No se recibió una URL de deep linking.');
+      return;
     }
+  
+    // Verifica que la URL tenga el formato correcto
+    if (!url.startsWith('rosenstein://')) {
+      Alert.alert('Error', 'URL de deep linking no válida.');
+      return;
+    }
+  
+    // Elimina el prefijo "rosenstein://"
+    const route = url.replace('rosenstein://', '');
+  
+    // Divide la ruta en partes
+    const routeParts = route.split('/');
+  
+    // Verifica que la ruta tenga el formato correcto: "machine/<serialNumber>"
+    if (routeParts.length !== 2 || routeParts[0] !== 'machine' || !routeParts[1]) {
+      Alert.alert('Error', 'URL de deep linking no válida.');
+      return;
+    }
+  
+    const serialNumber = routeParts[1]; // Obtiene el número de serie
+  
+    // Navega a la pantalla de detalles de la máquina con el número de serie
+    navigation.navigate('MachineDetails', { serialNumber });
   };
 
   useEffect(() => {
@@ -174,14 +188,23 @@ export default function App() {
             logoWidth={150}
           >
             <NavigationContainer
-              linking={linking}
-              onStateChange={(state) => {
-                const route = state?.routes[state.index];
-                if (route?.params?.url) {
-                  handleDeepLink(route.params.url); // Maneja el deep linking
-                }
-              }}
-            >
+  linking={linking}
+  onReady={() => {
+    // Maneja el deep linking cuando la navegación está lista
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink(url, navigation);
+      }
+    });
+  }}
+  onStateChange={(state) => {
+    // Maneja el deep linking cuando cambia el estado de la navegación
+    const route = state?.routes[state.index];
+    if (route?.params?.url) {
+      handleDeepLink(route.params.url, navigation);
+    }
+  }}
+>
               <Stack.Navigator>
                 {isAuthenticated === null ? (
                   <Stack.Screen
