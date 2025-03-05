@@ -27,6 +27,7 @@ export default ({ config }) => ({
     },
     ios: {
       bundleIdentifier: "com.riapp.ios",
+      "icon": "./assets/icon.png",
       supportsTablet: true,
       infoPlist: {
         NSCameraUsageDescription: "Esta aplicación necesita acceso a la cámara para escanear códigos QR.",

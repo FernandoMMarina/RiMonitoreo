@@ -110,7 +110,7 @@ const MaintenanceVisitStatus = () => {
   if (error) {
     return (
       <View style={{ marginTop: 20 }}>
-        <NoVisits onOpenWhatsApp={openWhatsApp} /> {/* Pasar onOpenWhatsApp */}
+        <NoVisits onOpenWhatsApp={openWhatsApp} /> 
       </View>
     );
   }

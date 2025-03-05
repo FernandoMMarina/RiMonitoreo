@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView, Modal } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView, Modal ,Share, Linking } from 'react-native';
 import * as Print from 'expo-print';
-import { Share, Linking } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styles from './styles';
 import axios from 'axios';
@@ -13,11 +11,15 @@ function MachineDetailsScreen({ route }) {
   const [machine, setMachine] = useState(null);
   const [loading, setLoading] = useState(true);
   console.log("ID recibido en MachineDetailsScreen:", id);
-  
-  
   const [modalVisible, setModalVisible] = useState(false);
 
-
+  const formatDate = (date) => {
+    return date ? new Date(date).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }) : 'No disponible';
+  };
   useEffect(() => {
     const fetchMachineData = async () => {
       try {
@@ -50,22 +52,46 @@ function MachineDetailsScreen({ route }) {
 
   console.log("Machines -- MachineDetailsScreen", machine);
 
-  const machineInfo = React.useMemo(() => ({
-    __v: machine?.__v || 0,
-    id: machine?._id || 'ID no disponible',
-    name: machine?.name || 'Nombre no disponible',
-    type: machine?.type || 'No disponible',
-    installationDate: machine?.installationDate || 'No disponible',
-    lastMaintenance: machine?.lastMaintenance || 'No disponible',
-    historyMaintenance: {
-      description: machine?.maintenanceHistory?.[0]?.description || 'No disponible',
-      frigorias: machine?.maintenanceHistory?.[0]?.frigorias || 'No disponible',
-      condensadora: machine?.maintenanceHistory?.[0]?.condensadora || 'No disponible',
-      evaporadora: machine?.maintenanceHistory?.[0]?.evaporadora || 'No disponible',
-      presionAlta: machine?.maintenanceHistory?.[0]?.presionAlta || 'No disponible',
-      presionBaja: machine?.maintenanceHistory?.[0]?.presionBaja || 'No disponible'
-    },
-  }), [machine]);
+  const machineInfo = React.useMemo(() => {
+    if (!machine) {
+      return {
+        __v: 0,
+        id: 'ID no disponible',
+        name: 'Nombre no disponible',
+        type: 'No disponible',
+        installationDate: 'No disponible',
+        lastMaintenance: 'No disponible',
+        historyMaintenance: {
+          description: 'No disponible',
+          frigorias: 'No disponible',
+          condensadora: 'No disponible',
+          evaporadora: 'No disponible',
+          presionAlta: 'No disponible',
+          presionBaja: 'No disponible',
+        },
+      };
+    }
+  
+    const lastMaintenance = machine.maintenanceHistory?.[0] || {};
+  
+    return {
+      __v: machine.__v || 0,
+      id: machine._id || 'ID no disponible',
+      name: machine.name || 'Nombre no disponible',
+      type: machine.type || 'No disponible',
+      serialNumber:machine.serialNumber || 'No disponible',
+      installationDate: machine.installationDate || 'No disponible',
+      lastMaintenance: formatDate(machine.lastMaintenance) || 'No disponible',
+      historyMaintenance: {
+        description: lastMaintenance.description || 'No disponible',
+        frigorias: lastMaintenance.frigorias || 'No disponible',
+        condensadora: lastMaintenance.condensadora || 'No disponible',
+        evaporadora: lastMaintenance.evaporadora || 'No disponible',
+        presionAlta: lastMaintenance.presionAlta || 'No disponible',
+        presionBaja: lastMaintenance.presionBaja || 'No disponible',
+      },
+    };
+  }, [machine]);
   
   // Mapear tipos a imágenes
   const typeImages = {
@@ -92,8 +118,6 @@ function MachineDetailsScreen({ route }) {
       </View>
     );
   }
-  
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -108,16 +132,6 @@ function MachineDetailsScreen({ route }) {
       </View>
     );
   }
-
- 
-
-  const formatDate = (date) => {
-    return date ? new Date(date).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }) : 'No disponible';
-  };
 
   const getMaintenanceStatus = () => {
     if (!machine?.lastMaintenance) {
@@ -155,9 +169,9 @@ function MachineDetailsScreen({ route }) {
   const whatsappMessage = `
   Hola, necesito agendar un mantenimiento para mi máquina.
   Nombre: ${machineInfo.name || 'No disponible'}
-  Numero de identificación: ${machineInfo.id || 'No disponible'}
+  Numero de identificación: ${machineInfo.serialNumber|| 'No disponible'}
   Tipo: ${machineInfo.type || 'No disponible'}
-  Último mantenimiento: ${formatDate(machineInfo.lastMaintenance)}
+  Último mantenimiento: ${machineInfo.lastMaintenance|| 'No disponible'}
   `;
 
   const generatePDF = async () => {
@@ -294,7 +308,6 @@ function MachineDetailsScreen({ route }) {
       Alert.alert('Error', 'No se pudo generar el PDF');
     }
   };
-
   // Función para generar PDF de etiqueta "Scan Me"
   const generateScanMePDF = async () => {
     const qrData = JSON.stringify({ machineId: machineInfo.id, name: machineInfo.name });
@@ -368,6 +381,8 @@ function MachineDetailsScreen({ route }) {
           <Text style={styles.modelName}>{machineInfo.name}</Text>
           <Text style={styles.title}>Fecha de Instalación :</Text>
           <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
+          <Text style={styles.title}>Numero de identificación :</Text>
+          <Text style={styles.installationDate}>{machineInfo.serialNumber ||  'No disponible'}</Text>
         </View>
 
         {/* Información del Mantenimiento */}
@@ -376,7 +391,9 @@ function MachineDetailsScreen({ route }) {
             <>
               <Text style={styles.sectionTitle}>Info. Último Mantenimiento</Text>
               <Text style={styles.infoLabel}>Fecha de Último Mantenimiento:</Text>
-              <Text style={styles.info}>{formatDate(machineInfo.lastMaintenance)}</Text>
+              <Text style={styles.info}>
+              {machineInfo.lastMaintenance ||  'No disponible'}
+               </Text>
               <Text style={styles.info}>
                 Descripción: {machineInfo.historyMaintenance.description}
               </Text>
