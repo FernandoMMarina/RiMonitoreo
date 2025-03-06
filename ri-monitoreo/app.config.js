@@ -23,7 +23,8 @@ export default ({ config }) => ({
     splash: {
       image: "./assets/logo.png",
       resizeMode: "contain",
-      backgroundColor: "#1D1936"
+      backgroundColor: "#1D1936",
+      imageWidth: 200
     },
     ios: {
       bundleIdentifier: "com.riapp.ios",

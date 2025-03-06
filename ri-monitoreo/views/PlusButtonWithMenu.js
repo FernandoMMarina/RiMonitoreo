@@ -79,7 +79,6 @@ const PlusButtonWithMenu = () => {
       >
         {profile?.role === 'user' && (
           <>
-
             <FlatList
               data={notifications}
               keyExtractor={(item) => item.id}

@@ -152,15 +152,11 @@ function MachineDetailsScreen({ route }) {
   const openWhatsApp = (phoneNumber, message) => {
     const url = `https://wa.me/${phoneNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
   
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          return Linking.openURL(url);
-        } else {
-          Alert.alert('Error', 'WhatsApp no está instalado en este dispositivo o no se puede abrir el enlace.');
-        }
-      })
-      .catch((err) => console.error('Error al abrir WhatsApp:', err));
+    Linking.openURL(url)
+    .catch((err) => {
+      console.error('Error al abrir WhatsApp:', err);
+      Alert.alert('Error', 'No se pudo abrir WhatsApp. Por favor, asegúrate de que la aplicación esté instalada.');
+    });
   };
   
   const maintenanceStatus = getMaintenanceStatus();
