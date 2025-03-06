@@ -17,6 +17,7 @@ import NewMaintence from './views/NewMaintence/NewMaintence';
 import MachinesList from './views/MachineList/MachineList';
 import OrdersList from './views/OrdersList/OrdersList.js';
 import NotificationView from './views/NotificationView/NotificationView.js';
+import NotificationView2 from './views/NotificationView2/NotificationView2.js';
 import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
 import ClientMachines from './views/ClientMachines/ClientMachines.js';
 import MachineListScreen from './views/MachineListScreen/MachineListScreen';
@@ -306,6 +307,15 @@ export default function App() {
                   component={NotificationView}
                   options={{
                     headerTitle: "Menu Notificaciones",
+                    headerShown: true,
+                    headerBackTitleVisible: false,
+                  }}
+                />
+                 <Stack.Screen
+                  name="NotificationView2"
+                  component={NotificationView2}
+                  options={{
+                    headerTitle: "Notificaciones",
                     headerShown: true,
                     headerBackTitleVisible: false,
                   }}

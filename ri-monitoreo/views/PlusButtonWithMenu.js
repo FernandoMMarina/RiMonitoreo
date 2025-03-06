@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Alert ,TouchableOpacity} from 'react-native';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSelector, useDispatch } from 'react-redux';
@@ -41,6 +41,19 @@ const PlusButtonWithMenu = () => {
   
 
   return (
+    <>
+    {profile?.role === 'user' && (
+      <>
+        <TouchableOpacity onPress={() => navigation.navigate('NotificationView2')}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }} >
+            <Ionicons style={{ marginRight: 8 }} name="notifications-outline" color="black" size={25} />
+          </View>
+        </TouchableOpacity>
+        
+      </>
+    )}
+
+    {profile?.role !== 'user'  && (
     <Menu>
       <MenuTrigger>
         <View>
@@ -77,37 +90,7 @@ const PlusButtonWithMenu = () => {
           width: 350,
         }}
       >
-        {profile?.role === 'user' && (
-          <>
-            <FlatList
-              data={notifications}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <MenuOption onSelect={() => Alert.alert('Notificación', item.body)}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-                    <Ionicons
-                      style={{ marginRight: 8 }}
-                      name="notifications-outline"
-                      color={item.read ? 'gray' : 'black'}
-                      size={20}
-                    />
-                    <Text style={{ fontSize: 13 }}>{item.title}</Text>
-                  </View>
-                </MenuOption>
-              )}
-            />
-            <MenuOption onSelect={() => dispatch(markAllAsRead())}>
-            <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 16 ,textAlign:"center" }}>Notificaciones</Text>
-            </View>
-
-              <Text style={{ fontSize: 13, textAlign: 'center', color: 'blue' }}>
-                Marcar todas como leídas
-              </Text>
-            </MenuOption>
-          </>
-        )}
-         {profile?.role !== 'user'  && (
+         
           <>
             <MenuOption onSelect={() => navigation.navigate('NewUserScreen')}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -146,9 +129,10 @@ const PlusButtonWithMenu = () => {
               </View>
             </MenuOption>
           </>
-        )}
       </MenuOptions>
     </Menu>
+        )}
+    </>
   );
 };
 
