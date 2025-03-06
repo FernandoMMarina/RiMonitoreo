@@ -83,6 +83,7 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
     }
   
     const serialNumber = match[0];
+    console.log("Número de serie extraído:", serialNumber);
   
     try {
       setScanned(true);

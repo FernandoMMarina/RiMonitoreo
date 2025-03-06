@@ -52,7 +52,7 @@ const HomeScreen = () => {
       setScanned(true); // Evita múltiples escaneos
       setModalIsVisible(false); // Cierra la cámara inmediatamente
       
-      const response = await fetch(`https://rosensteininstalaciones.com.ar/api/machines/machine-by-serial/${serialNumber}`);
+      const response = await fetch(`https://rosensteininstalaciones.com.ar/api/machines/serial/${serialNumber}`);
       const result = await response.json();
       const id = result.machineId;
   

@@ -1,6 +1,6 @@
 export const fetchMachineBySerial = async (serialNumber) => {
     try {
-      const response = await fetch(`https://rosensteininstalaciones.com.ar/api/machines/machine-by-serial/${serialNumber}`);
+      const response = await fetch(`https://rosensteininstalaciones.com.ar/api/machines/serial/${serialNumber}`);
       const result = await response.json();
   
       if (!response.ok) {
