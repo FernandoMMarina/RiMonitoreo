@@ -162,13 +162,14 @@ function MachineDetailsScreen({ route }) {
   const maintenanceStatus = getMaintenanceStatus();
   
   // Construir el mensaje de WhatsApp dinámicamente
-  const whatsappMessage = `
-  Hola, necesito agendar un mantenimiento para mi máquina.
-  Nombre: ${machineInfo.name || 'No disponible'}
-  Numero de identificación: ${machineInfo.serialNumber|| 'No disponible'}
-  Tipo: ${machineInfo.type || 'No disponible'}
-  Último mantenimiento: ${machineInfo.lastMaintenance|| 'No disponible'}
-  `;
+const whatsappMessage = `
+Hola, necesito agendar un mantenimiento para mi máquina.
+Nombre: ${machineInfo.name || 'No disponible'}
+Número de identificación: ${machineInfo.serialNumber || 'No disponible'}
+Enlace: https://rosensteininstalaciones.com.ar/redirect?serialNumber=${machineInfo.serialNumber}
+Tipo: ${machineInfo.type || 'No disponible'}
+Último mantenimiento: ${machineInfo.lastMaintenance || 'No disponible'}
+`;
 
   const generatePDF = async () => {
     const lastMaintenance = machine?.maintenanceHistory?.[0] || {};

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile } from '../../redux/slices/userSlice';
 import styles from './styles';
@@ -38,7 +38,7 @@ console.log("Direccion", direccion);
   };
 
   return (
-    <View style={styles.screen2}>
+    <ScrollView style={styles.screen2}>
       {/* Encabezado con círculo de iniciales */}
       <View style={styles.header}>
         <View style={styles.initialsCircle}>
@@ -52,21 +52,16 @@ console.log("Direccion", direccion);
       <View style={styles.formContainer}>
       <Text style={styles.formLabel}>Sucursal:</Text>
       <Text style={styles.currentInfo}>
-  {`${profile?.sucursales?.[0]?.nombre || 'No Disponible'} `}
-</Text>
-  <Text style={styles.formLabel}>Dirección:</Text>
-{profile?.sucursales?.length > 0 ? (
-  <Text style={styles.currentInfo}>
-    {`${profile.sucursales[0].direccion.calle} ${profile.sucursales[0].direccion.numero}, ${profile.sucursales[0].direccion.ciudad}, ${profile.sucursales[0].direccion.provincia}, ${profile.sucursales[0].direccion.codigoPostal}`}
-  </Text>
-) : (
-  <Text style={styles.currentInfo}>No disponible</Text>
-)}
-
-
-
-
-
+          {`${profile?.sucursales?.[0]?.nombre || 'No Disponible'} `}
+        </Text>
+          <Text style={styles.formLabel}>Dirección:</Text>
+        {profile?.sucursales?.length > 0 ? (
+          <Text style={styles.currentInfo}>
+            {`${profile.sucursales[0].direccion.calle} ${profile.sucursales[0].direccion.numero}, ${profile.sucursales[0].direccion.ciudad}, ${profile.sucursales[0].direccion.provincia}, ${profile.sucursales[0].direccion.codigoPostal}`}
+          </Text>
+        ) : (
+          <Text style={styles.currentInfo}>No disponible</Text>
+        )}
         <Text style={styles.formLabel}>Nueva dirección</Text>
         <TextInput
           style={styles.input}
@@ -112,7 +107,7 @@ console.log("Direccion", direccion);
         {/* Mostrar errores */}
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

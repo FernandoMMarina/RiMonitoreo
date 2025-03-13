@@ -346,6 +346,7 @@ export default StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
+        marginBottom:150
       },
       formLabel: {
         fontSize: 14,
