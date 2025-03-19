@@ -373,15 +373,55 @@ Tipo: ${machineInfo.type || 'No disponible'}
         
         {/* Información del Modelo */}
         <View style={styles.card}>
-        <Image source={getImageByType(machine.type)} style={styles.image} />
+          <Image source={getImageByType(machine.type)} style={styles.image} />
           <Text style={styles.title}>Modelo:</Text>
           <Text style={styles.modelName}>{machineInfo.name}</Text>
-          <Text style={styles.title}>Fecha de Instalación :</Text>
+          <Text style={styles.title}>Fecha de Instalación:</Text>
           <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
-          <Text style={styles.title}>Numero de identificación :</Text>
-          <Text style={styles.installationDate}>{machineInfo.serialNumber ||  'No disponible'}</Text>
-        </View>
+          <Text style={styles.title}>Ubicación:</Text>
+          <Text style={styles.installationDate}>{machine.location || 'No disponible'}</Text>
+          <Text style={styles.title}>Número de Identificación:</Text>
+          <Text style={styles.installationDate}>{machineInfo.serialNumber || 'No disponible'}</Text>
 
+          {/* Información Adicional por Tipo de Máquina */}
+          {machineInfo.type === "Aire Acondicionado" && (
+            <>
+              <Text style={styles.title}>Capacidad (Frigorías):</Text>
+              <Text style={styles.installationDate}>{machineInfo.historyMaintenance.frigorias || 'No disponible'}</Text>
+              <Text style={styles.title}>Tipo de Gas:</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.gasType || 'No disponible'}</Text>
+            </>
+          )}
+
+          {machineInfo.type === "Caldera" && (
+            <>
+              <Text style={styles.title}>Potencia (kW):</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.power || 'No disponible'}</Text>
+              <Text style={styles.title}>Combustible:</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.fuelType || 'No disponible'}</Text>
+            </>
+          )}
+
+          {machineInfo.type === "Refrigerador" && (
+            <>
+              <Text style={styles.title}>Temperatura Mínima (°C):</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.minTemp || 'No disponible'}</Text>
+              <Text style={styles.title}>Temperatura Máxima (°C):</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.maxTemp || 'No disponible'}</Text>
+            </>
+          )}
+
+          {machineInfo.type === "AutoElevador" && (
+            <>
+              <Text style={styles.title}>Capacidad de Carga (kg):</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.loadCapacity || 'No disponible'}</Text>
+              <Text style={styles.title}>Altura Máxima (m):</Text>
+              <Text style={styles.installationDate}>{machine.additionalInfo?.maxHeight || 'No disponible'}</Text>
+            </>
+          )}
+
+          {/* Agrega más condiciones para otros tipos de máquinas */}
+        </View>
         {/* Información del Mantenimiento */}
         <View style={styles.card}>
           {machine?.maintenanceHistory?.[0] ? (

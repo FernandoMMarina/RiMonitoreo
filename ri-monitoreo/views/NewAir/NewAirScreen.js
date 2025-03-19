@@ -48,6 +48,7 @@ const NewAirScreen= () => {
     motorPower: "",
     loadCapacity: "",
     liftHeight: "",
+    location:"",
   });
   
 
@@ -105,6 +106,7 @@ const NewAirScreen= () => {
         coolingCapacity: "",
         heatingCapacity: "",
         refrigerantType: "",
+        location:"",
       });
   
     } catch (error) {
@@ -150,6 +152,8 @@ const NewAirScreen= () => {
           <TextInput style={styles.input} value={machineData.heatingCapacity} onChangeText={(value) => handleInputChange("heatingCapacity", value)} placeholder="Ejemplo: 4000 BTU" />
           <Text style={styles.label}>Tipo de refrigerante</Text>
           <TextInput style={styles.input} value={machineData.refrigerantType} onChangeText={(value) => handleInputChange("refrigerantType", value)} placeholder="Ejemplo: R410A" />
+          <Text style={styles.label}>Ubicación</Text>
+          <TextInput style={styles.input} value={machineData.location} onChangeText={(value) => handleInputChange("location", value)} placeholder="Ejemplo: Taller" />
         </>
       )}
       {machineData.type === "Cabina de Pintura" && (
@@ -160,6 +164,9 @@ const NewAirScreen= () => {
           <TextInput style={styles.input} value={machineData.filterType} onChangeText={(value) => handleInputChange("filterType", value)} placeholder="Ejemplo: HEPA" />
           <Text style={styles.label}>Flujo de Aire</Text>
           <TextInput style={styles.input} value={machineData.airFlow} onChangeText={(value) => handleInputChange("airFlow", value)} placeholder="Ejemplo: 2000 m³/h" />
+          <Text style={styles.label}>Ubicación</Text>
+          <TextInput style={styles.input} value={machineData.refrigerantType} onChangeText={(value) => handleInputChange("refrigerantType", value)} placeholder="Ejemplo: Taller" />
+          
         </>
       )}
       {machineData.type === "Caldera" && (
@@ -170,6 +177,8 @@ const NewAirScreen= () => {
           <TextInput style={styles.input} value={machineData.maxPressure} onChangeText={(value) => handleInputChange("maxPressure", value)} placeholder="Ejemplo: 15 bar" />
           <Text style={styles.label}>Tipo de Combustible</Text>
           <TextInput style={styles.input} value={machineData.fuelType} onChangeText={(value) => handleInputChange("fuelType", value)} placeholder="Ejemplo: Gas Natural" />
+          <Text style={styles.label}>Ubicación</Text>
+          <TextInput style={styles.input} value={machineData.refrigerantType} onChangeText={(value) => handleInputChange("refrigerantType", value)} placeholder="Ejemplo: Taller" />
         </>
       )}
     </View>
