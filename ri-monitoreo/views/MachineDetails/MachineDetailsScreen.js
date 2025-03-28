@@ -50,7 +50,7 @@ function MachineDetailsScreen({ route }) {
     fetchMachineData();
   }, [id, serialNumber]);
 
-  console.log("Machines -- MachineDetailsScreen", machine);
+  console.log("Machines -- MachineDetailsScreen ACA", machine);
 
   const machineInfo = React.useMemo(() => {
     if (!machine) {
@@ -379,6 +379,13 @@ function MachineDetailsScreen({ route }) {
           <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
           <Text style={styles.title}>Numero de identificación :</Text>
           <Text style={styles.installationDate}>{machineInfo.serialNumber ||  'No disponible'}</Text>
+          <Text style={styles.title}>Frigorías:</Text>
+          <Text style={styles.installationDate}> {machine.coolingCapacity ||  'No disponible'}</Text>
+          <Text style={styles.title}>Calorias:</Text>
+          <Text style={styles.installationDate}> {machine.heatingCapacity ||  'No disponible'}</Text>
+          <Text style={styles.title}>Refrigerante:</Text>
+          <Text style={styles.installationDate}> {machine.condensadora ||  'No disponible'}</Text>
+          
         </View>
 
         {/* Información del Mantenimiento */}

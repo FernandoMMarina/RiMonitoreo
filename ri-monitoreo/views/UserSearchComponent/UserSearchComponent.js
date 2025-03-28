@@ -32,6 +32,7 @@ const UserSearchComponent = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        console.log(response.data);
         setUsers(response.data);
       } catch (error) {
         console.error("Error buscando usuarios:", error);
