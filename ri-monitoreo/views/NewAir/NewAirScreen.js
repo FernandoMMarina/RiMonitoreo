@@ -177,6 +177,7 @@ const NewAirScreen = () => {
         sectorId: "",
         branchName: "",
         sectorName: ""
+
       });
       
     } catch (error) {
@@ -409,6 +410,7 @@ const NewAirScreen = () => {
           maxLength={50}
         />
       </ScrollView>
+
     </View>
   );
 

@@ -116,7 +116,7 @@ const PlusButtonWithMenu = () => {
                 <Text style={{ fontSize: 13 }}>Nuevo Mantenimiento</Text>
               </View>
             </MenuOption>
-            <MenuOption onSelect={() => navigation.navigate('NotificationView')}>
+            <MenuOption onSelect={() => navigation.navigate('NotificationView2')}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons style={{ marginRight: 8 }} name="notifications-outline" color="black" size={20} />
                 <Text style={{ fontSize: 13 }}>Notificaciones</Text>

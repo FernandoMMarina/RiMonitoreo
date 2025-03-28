@@ -47,16 +47,6 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [userId, setUserId] = useState("");
 
-  // Función para obtener el ID de la máquina a partir del número de serie
-  const getMachineIdFromSerialNumber = async (serialNumber) => {
-    try {
-      const response = await axios.get(`${API_URL}/machines/serial/${serialNumber}`);
-      return response.data.id; // Suponiendo que el endpoint devuelve el ID de la máquina
-    } catch (error) {
-      console.error('Error obteniendo el ID de la máquina:', error);
-      return null;
-    }
-  };
 
   // Manejo del deep linking
   const handleDeepLink = async (url, navigation) => {
@@ -88,6 +78,72 @@ export default function App() {
     // Navega a la pantalla de detalles de la máquina con el número de serie
     navigation.navigate('MachineDetails', { serialNumber });
   };
+
+    // Solicitar permisos de notificaciones
+    const requestNotificationPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permisos denegados', 'No se pueden mostrar notificaciones sin permisos.');
+      }
+    };
+  
+    // Configurar el manejador de notificaciones
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  
+    // Escuchar notificaciones
+    useEffect(() => {
+      const foregroundSubscription = Notifications.addNotificationReceivedListener(handleNotification);
+      const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+        const notification = response.notification.request.content;
+        handleNotification({ request: { content: notification } });
+      });
+  
+      return () => {
+        foregroundSubscription.remove();
+        backgroundSubscription.remove();
+      };
+    }, []);
+  
+    const handleNotification = (notification) => {
+      const newNotification = {
+        id: notification.request.identifier || Date.now().toString(),
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        read: false,
+      };
+      saveNotification(newNotification);
+    };
+  
+  const saveNotification = async (notification) => {
+    try {
+      const storedNotifications = await AsyncStorage.getItem('notifications');
+      const notificationsArray = storedNotifications ? JSON.parse(storedNotifications) : [];
+      notificationsArray.unshift(notification);
+      await AsyncStorage.setItem('notifications', JSON.stringify(notificationsArray));
+    } catch (error) {
+      console.error('Error saving notification:', error);
+    }
+  };
+  // Cargar notificaciones al iniciar
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const storedNotifications = await AsyncStorage.getItem('notifications');
+        if (storedNotifications) {
+          setNotifications(JSON.parse(storedNotifications));
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    };
+    loadNotifications();
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -184,23 +240,23 @@ export default function App() {
             logoWidth={150}
           >
             <NavigationContainer
-  linking={linking}
-  onReady={() => {
-    // Maneja el deep linking cuando la navegación está lista
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        handleDeepLink(url, navigation);
-      }
-    });
-  }}
-  onStateChange={(state) => {
-    // Maneja el deep linking cuando cambia el estado de la navegación
-    const route = state?.routes[state.index];
-    if (route?.params?.url) {
-      handleDeepLink(route.params.url, navigation);
-    }
-  }}
->
+                  linking={linking}
+                  onReady={() => {
+                    // Maneja el deep linking cuando la navegación está lista
+                    Linking.getInitialURL().then((url) => {
+                      if (url) {
+                        handleDeepLink(url, navigation);
+                      }
+                    });
+                  }}
+                  onStateChange={(state) => {
+                    // Maneja el deep linking cuando cambia el estado de la navegación
+                    const route = state?.routes[state.index];
+                    if (route?.params?.url) {
+                      handleDeepLink(route.params.url, navigation);
+                    }
+                  }}
+                >
               <Stack.Navigator>
                 {isAuthenticated === null ? (
                   <Stack.Screen
@@ -314,6 +370,7 @@ export default function App() {
                  <Stack.Screen
                   name="NotificationView2"
                   component={NotificationView2}
+                  initialParams={{ userId }} // Pasa el userId como prop
                   options={{
                     headerTitle: "Notificaciones",
                     headerShown: true,
