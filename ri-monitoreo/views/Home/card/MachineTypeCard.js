@@ -9,7 +9,8 @@ const MachineCard = ({ type, count, navigation, machines }) => {
    // Encuentra la primera máquina del tipo correspondiente
    const machineOfType = machines.find((machine) => machine.type === type);
    const filteredMachines = machines.filter((machine) => machine.type === type);
-  console.log(machines);
+   const sucursal = machines.filter((machine) => machine.sucursales === sucursal);
+  console.log(machines[1].sucursal);
   const getIcon = () => {
     switch (type) {
       case 'Aire Acondicionado':

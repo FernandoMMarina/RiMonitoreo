@@ -1,47 +1,71 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-    container: {
-        height: "100%",
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        backgroundColor: '#1D1936',
-      },
-      progressBarContainer: {
-        marginTop: 0,
-        marginBottom: 30,
-        width: '100%',
-      },
-      formContainer: {
-        width: '100%',
-        alignItems: 'center',
-      },
-      input: {
-        height: 40,
-        width: '80%',
-        borderColor: '#FFF',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 20,
-        color: '#fff',
-      },
-      errorText: {
-        color: 'red',
-        marginBottom: 10,
-      },
-      siguienteButton: {
-        width: '60%',
-        paddingVertical: 10,
-        backgroundColor: '#161616',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#161616',
-        alignItems: 'center',
-        marginTop: 20,
-      },
-      siguienteText: {
-        color: '#FFF',
-      },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f5f5f5",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#1D1936",
+    textAlign: "center",
+  },
+  label: {
+    fontSize: 16,
+    marginTop: 16,
+    color: "#333",
+    fontWeight: "600",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+    backgroundColor: "#fff",
+    fontSize: 16,
+  },
+  tabContent: {
+    flex: 1,
+    padding: 16,
+  },
+  userSection: {
+    marginBottom: 16,
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  userInfoContainer: {
+    marginTop: 8,
+  },
+  userInfo: {
+    fontSize: 14,
+    color: "#555",
+  },
+  submitButton: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  selectedInfo: {
+    fontSize: 14,
+    color: "#1D1936",
+    marginTop: 4,
+    fontStyle: "italic",
+  },
+  button: {
+    backgroundColor: '#1D1936',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });

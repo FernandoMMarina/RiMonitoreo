@@ -3,12 +3,14 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 16,
-      backgroundColor: '#f9f9f9',
+      backgroundColor: '#1D1936',
     },
     title: {
       fontSize: 20,
       fontWeight: 'bold',
       marginBottom: 16,
+      color:"#fff",
+      textAlign:"center"
     },
     machineItem: {
       marginBottom: 10,
@@ -35,5 +37,10 @@ const styles = StyleSheet.create({
       fontSize: 14,
       color: '#666',
     },
+    machineSubText: {
+      fontSize: 12,
+      color: '#666',
+    },
+    
   });
   export default styles;

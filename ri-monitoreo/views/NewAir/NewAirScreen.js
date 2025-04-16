@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Picker } from "@react-native-picker/picker";
@@ -16,6 +17,7 @@ import UserSearchComponent from "../UserSearchComponent/UserSearchComponent";
 import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import styles from './styles';
 
 const NewAirScreen = () => {
   const selectedUser = useSelector((state) => state.user.selectedUser);
@@ -25,7 +27,9 @@ const NewAirScreen = () => {
   const [routes] = useState([
     { key: "general", title: "General" },
     { key: "details", title: "Detalles" },
+    { key: "preview", title: "Resumen" },
   ]);
+  
 
   const [branches, setBranches] = useState([]);
   const [sectors, setSectors] = useState([]);
@@ -38,12 +42,38 @@ const NewAirScreen = () => {
     coolingCapacity: "",
     heatingCapacity: "",
     refrigerantType: "",
-    branchId: "",
+    sucursal: "",
     sectorId: "",
-    branchName: "", // Nuevo campo para el nombre de la sucursal
-    sectorName: "" // Nuevo campo para el nombre del sector
+    sucursalNombre: "",
+    sectorNombre: "",
+  
+    // Cabina de Pintura
+    filtrosTecho: "",
+    filtrosPiso: "",
+    moduloIgnicion: "",
+    motorExtraccion: "",
+    motorRecirculacion: "",
+  
+    // Caldera
+    marcaModelo: "",
+    cantidadRadiadores: "",
+    cantidadColectores: "",
+    dual: "",
+    tirajeForzado: "",
+  
+    // Compresor de Aire
+    motorElectrico: "",
+    correa: "",
+    purgador: "",
+    tipoAceite: "",
+  
+    // Aire Roof Top
+    toneladas: "",
+  
+    // Aire Piso Techo / Bajo Silueta / Multiposición
+    fases: "",
   });
-
+  
   // Cargar sucursales desde el usuario seleccionado
   useEffect(() => {
     if (selectedUser?.sucursales) {
@@ -65,18 +95,17 @@ const NewAirScreen = () => {
 
   // Cargar sectores filtrados por sucursal seleccionada
   useEffect(() => {
-    if (machineData.branchId && selectedUser?.sectores) {
+    if (machineData.sucursal && selectedUser?.sectores) {
       const filteredSectors = selectedUser.sectores.filter(
-        sector => sector.sucursal === machineData.branchId
+        sector => sector.sucursal === machineData.sucursal
       );
       setSectors(filteredSectors);
-      
-      // Actualizar el nombre de la sucursal seleccionada
-      const selectedBranch = branches.find(b => b._id === machineData.branchId);
+  
+      const selectedBranch = branches.find(b => b._id === machineData.sucursal);
       if (selectedBranch) {
         setMachineData(prev => ({
           ...prev,
-          branchName: selectedBranch.nombre
+          sucursalNombre: selectedBranch.nombre
         }));
       }
     } else {
@@ -84,11 +113,11 @@ const NewAirScreen = () => {
       setMachineData(prev => ({
         ...prev,
         sectorId: "",
-        sectorName: ""
+        sectorNombre: ""
       }));
     }
-  }, [machineData.branchId, selectedUser]);
-
+  }, [machineData.sucursal, selectedUser]);
+  
   const handleInputChange = (name, value) => {
     setMachineData((prev) => ({ ...prev, [name]: value }));
   };
@@ -132,53 +161,133 @@ const NewAirScreen = () => {
     return true;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+  const clonarDatosBase = (data) => {
+    return {
+      ...data,
+      name: "",
+      marcaModelo: "",
+      coolingCapacity: "",
+      heatingCapacity: "",
+      refrigerantType: "",
+      filtrosTecho: "",
+      filtrosPiso: "",
+      moduloIgnicion: "",
+      motorExtraccion: "",
+      motorRecirculacion: "",
+      cantidadRadiadores: "",
+      cantidadColectores: "",
+      dual: "",
+      tirajeForzado: "",
+      motorElectrico: "",
+      correa: "",
+      purgador: "",
+      tipoAceite: "",
+      toneladas: "",
+      fases: "",
+    };
+  };
   
+  const handleSubmit = () => {
+    const errores = getResumenErrores(machineData);
+  
+    if (errores.length > 0) {
+      Alert.alert("Error", "Faltan completar algunos campos obligatorios");
+      setIndex(2); // Cambia al tab Resumen
+      return;
+    }
+  
+    Alert.alert(
+      "Confirmar creación",
+      "¿Estás seguro de que querés crear esta máquina con los datos ingresados?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Confirmar", onPress: () => enviarMaquina() }
+      ]
+    );
+  };
+
+  const enviarMaquina = async () => {
     setIsSubmitting(true);
+  
     try {
       const token = await AsyncStorage.getItem("token");
-      
+  
       const payload = {
         ...machineData,
         userId: selectedUser._id,
         userEmail: selectedUser.email,
         userName: selectedUser.username,
-        // Eliminar campos temporales antes de enviar
-        branchName: undefined,
-        sectorName: undefined
+        sucursal: machineData.sucursal,
+        sector: machineData.sectorId,
       };
-      
-      delete payload.branchName;
-      delete payload.sectorName;
-
+  
+      delete payload.sucursalNombre;
+      delete payload.sectorNombre;
+  
       const response = await axios.post(
         "https://rosensteininstalaciones.com.ar/api/machines",
         payload,
-        { 
-          headers: { 
+        {
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          } 
+            "Content-Type": "application/json",
+          },
         }
       );
-
-      Alert.alert("Éxito", "Máquina creada correctamente");
+  
+      Alert.alert(
+        "Máquina creada",
+        "¿Querés crear otra similar?",
+        [
+          {
+            text: "No",
+            style: "cancel",
+            onPress: () => {
+              setMachineData({
+                name: "",
+                type: "",
+                manufacturer: "",
+                coolingCapacity: "",
+                heatingCapacity: "",
+                refrigerantType: "",
+                sucursal: "",
+                sectorId: "",
+                sucursalNombre: "",
+                sectorNombre: "",
       
-      // Resetear formulario
-      setMachineData({
-        name: "",
-        type: "",
-        manufacturer: "",
-        coolingCapacity: "",
-        heatingCapacity: "",
-        refrigerantType: "",
-        branchId: "",
-        sectorId: "",
-        branchName: "",
-        sectorName: ""
-
-      });
+                filtrosTecho: "",
+                filtrosPiso: "",
+                moduloIgnicion: "",
+                motorExtraccion: "",
+                motorRecirculacion: "",
+      
+                marcaModelo: "",
+                cantidadRadiadores: "",
+                cantidadColectores: "",
+                dual: "",
+                tirajeForzado: "",
+      
+                motorElectrico: "",
+                correa: "",
+                purgador: "",
+                tipoAceite: "",
+      
+                toneladas: "",
+                fases: "",
+              });
+              setIndex(0);
+            }
+          },
+          {
+            text: "Sí",
+            onPress: () => {
+              const nuevosDatos = clonarDatosBase(machineData);
+              setMachineData(nuevosDatos);
+              setIndex(0);
+            }
+          }
+        ]
+      );
       
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
@@ -193,7 +302,7 @@ const NewAirScreen = () => {
       setIsSubmitting(false);
     }
   };
-
+  
   const GeneralTab = () => (
     <View style={styles.tabContent}>
       <ScrollView>
@@ -204,11 +313,14 @@ const NewAirScreen = () => {
           style={styles.input}
           dropdownIconColor="#1D1936"
         >
-          <Picker.Item label="Seleccione un tipo" value="" />
           <Picker.Item label="Aire Acondicionado" value="Aire Acondicionado" />
           <Picker.Item label="Cabina de Pintura" value="Cabina de Pintura" />
           <Picker.Item label="Caldera" value="Caldera" />
           <Picker.Item label="Compresor de Aire" value="Compresor de Aire" />
+          <Picker.Item label="Aire Roof Top" value="Aire Roof Top" />
+          <Picker.Item label="Aire Piso Techo" value="Aire Piso Techo" />
+          <Picker.Item label="Bajo Silueta" value="Bajo Silueta" />
+          <Picker.Item label="Multiposición" value="Multiposición" />
           <Picker.Item label="AutoElevador" value="AutoElevador" />
         </Picker>
         <Text style={styles.label}>Nombre o Modelo de la Maquina*</Text>
@@ -222,8 +334,8 @@ const NewAirScreen = () => {
         
         <Text style={styles.label}>Sucursal*</Text>
         <Picker
-          selectedValue={machineData.branchId}
-          onValueChange={(value) => handleInputChange("branchId", value)}
+          selectedValue={machineData.sucursal}
+          onValueChange={(value) => handleInputChange("sucursal", value)}
           style={styles.input}
           dropdownIconColor="#1D1936"
         >
@@ -236,9 +348,9 @@ const NewAirScreen = () => {
             />
           ))}
         </Picker>
-        
-        {machineData.branchName ? (
-          <Text style={styles.selectedInfo}>Sucursal seleccionada: {machineData.branchName}</Text>
+
+        {machineData.sucursalNombre ? (
+          <Text style={styles.selectedInfo}>Sucursal seleccionada: {machineData.sucursalNombre}</Text>
         ) : null}
         
         <Text style={styles.label}>Sector*</Text>
@@ -304,103 +416,210 @@ const NewAirScreen = () => {
             />
           </>
         )}
-        
+  
         {machineData.type === "Cabina de Pintura" && (
           <>
-            <Text style={styles.label}>Medida de Filtros de Techo</Text>
+            <Text style={styles.label}>Filtros de Techo (medida)</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.cabinSize} 
-              onChangeText={(value) => handleInputChange("cabinSize", value)} 
-              placeholder="3x3m" 
-              maxLength={20}
+              value={machineData.filtrosTecho} 
+              onChangeText={(value) => handleInputChange("filtrosTecho", value)} 
             />
-            <Text style={styles.label}>Medida de Filtros piso</Text>
+            <Text style={styles.label}>Filtros de Piso (medida)</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.filterType} 
-              onChangeText={(value) => handleInputChange("filterType", value)} 
-              placeholder="HEPA" 
-              maxLength={30}
+              value={machineData.filtrosPiso} 
+              onChangeText={(value) => handleInputChange("filtrosPiso", value)} 
             />
-            <Text style={styles.label}>Modulo de Ignicion (Modelo)</Text>
+            <Text style={styles.label}>Módulo de Ignición (modelo)</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.airFlow} 
-              onChangeText={(value) => handleInputChange("airFlow", value)} 
-              placeholder="2000" 
-              keyboardType="numeric"
-              maxLength={6}
+              value={machineData.moduloIgnicion} 
+              onChangeText={(value) => handleInputChange("moduloIgnicion", value)} 
             />
-            <Text style={styles.label}>Motor de Extraccion (HP/Amp)</Text>
+            <Text style={styles.label}>Motor de Extracción (HP/Amp)</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.airFlow} 
-              onChangeText={(value) => handleInputChange("airFlow", value)} 
-              placeholder="2000" 
-              keyboardType="numeric"
-              maxLength={6}
+              value={machineData.motorExtraccion} 
+              onChangeText={(value) => handleInputChange("motorExtraccion", value)} 
             />
-            <Text style={styles.label}>Moto de Recirculacion(HP/Amp)</Text>
+            <Text style={styles.label}>Motor de Recirculación (HP/Amp)</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.airFlow} 
-              onChangeText={(value) => handleInputChange("airFlow", value)} 
-              placeholder="2000" 
-              keyboardType="numeric"
-              maxLength={6}
+              value={machineData.motorRecirculacion} 
+              onChangeText={(value) => handleInputChange("motorRecirculacion", value)} 
             />
           </>
         )}
-        
+  
         {machineData.type === "Caldera" && (
           <>
+            <Text style={styles.label}>Marca / Modelo</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.marcaModelo} 
+              onChangeText={(value) => handleInputChange("marcaModelo", value)} 
+            />
             <Text style={styles.label}>Cantidad de Radiadores</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.powerOutput} 
-              onChangeText={(value) => handleInputChange("powerOutput", value)} 
-              placeholder="100" 
+              value={machineData.cantidadRadiadores} 
+              onChangeText={(value) => handleInputChange("cantidadRadiadores", value)} 
               keyboardType="numeric"
-              maxLength={6}
             />
             <Text style={styles.label}>Cantidad de Colectores</Text>
             <TextInput 
               style={styles.input} 
-              value={machineData.maxPressure} 
-              onChangeText={(value) => handleInputChange("maxPressure", value)} 
-              placeholder="15" 
+              value={machineData.cantidadColectores} 
+              onChangeText={(value) => handleInputChange("cantidadColectores", value)} 
               keyboardType="numeric"
-              maxLength={4}
             />
-            <Text style={styles.label}>Dual (Si / No)</Text>
+            <Text style={styles.label}>Dual</Text>
             <Picker
-          selectedValue={machineData.type}
-          onValueChange={(value) => handleInputChange("type", value)}
-          style={styles.input}
-          dropdownIconColor="#1D1936"
-        >
-          <Picker.Item label="Seleccione un valor" value="" />
-          <Picker.Item label="Si" value="Si" />
-          <Picker.Item label="No" value="No" />
-          
-        </Picker>
-             <Text style={styles.label}>Tiraje Forzado (Si / No)</Text>
-             <Picker
-          selectedValue={machineData.type}
-          onValueChange={(value) => handleInputChange("type", value)}
-          style={styles.input}
-          dropdownIconColor="#1D1936"
-        >
-          <Picker.Item label="Seleccione un valor" value="" />
-          <Picker.Item label="Si" value="Si" />
-          <Picker.Item label="No" value="No" />
-          
-        </Picker>
-            
+              selectedValue={machineData.dual}
+              onValueChange={(value) => handleInputChange("dual", value)}
+              style={styles.input}
+            >
+              <Picker.Item label="Seleccione" value="" />
+              <Picker.Item label="Sí" value="Sí" />
+              <Picker.Item label="No" value="No" />
+            </Picker>
+            <Text style={styles.label}>Tiraje Forzado</Text>
+            <Picker
+              selectedValue={machineData.tirajeForzado}
+              onValueChange={(value) => handleInputChange("tirajeForzado", value)}
+              style={styles.input}
+            >
+              <Picker.Item label="Seleccione" value="" />
+              <Picker.Item label="Sí" value="Sí" />
+              <Picker.Item label="No" value="No" />
+            </Picker>
           </>
         )}
-        
+  
+        {machineData.type === "Compresor de Aire" && (
+          <>
+            <Text style={styles.label}>Motor Eléctrico (HP/Amp)</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.motorElectrico} 
+              onChangeText={(value) => handleInputChange("motorElectrico", value)} 
+            />
+            <Text style={styles.label}>Correa (modelo)</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.correa} 
+              onChangeText={(value) => handleInputChange("correa", value)} 
+            />
+            <Text style={styles.label}>Purgador</Text>
+            <Picker
+              selectedValue={machineData.purgador}
+              onValueChange={(value) => handleInputChange("purgador", value)}
+              style={styles.input}
+            >
+              <Picker.Item label="Seleccione" value="" />
+              <Picker.Item label="Sí" value="Sí" />
+              <Picker.Item label="No" value="No" />
+            </Picker>
+            <Text style={styles.label}>Tipo de Aceite</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.tipoAceite} 
+              onChangeText={(value) => handleInputChange("tipoAceite", value)} 
+            />
+          </>
+        )}
+  
+        {machineData.type === "Aire Roof Top" && (
+          <>
+            <Text style={styles.label}>Marca / Modelo</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.marcaModelo} 
+              onChangeText={(value) => handleInputChange("marcaModelo", value)} 
+            />
+            <Text style={styles.label}>Toneladas</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.toneladas} 
+              onChangeText={(value) => handleInputChange("toneladas", value)} 
+              keyboardType="numeric"
+            />
+          </>
+        )}
+  
+          {machineData.type === "Aire Piso Techo" && (
+          <>
+            <Text style={styles.label}>Marca / Modelo</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.marcaModelo} 
+              onChangeText={(value) => handleInputChange("marcaModelo", value)} 
+            />
+            <Text style={styles.label}>Refrigerante</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.refrigerantType} 
+              onChangeText={(value) => handleInputChange("refrigerantType", value)} 
+            />
+            <Text style={styles.label}>Fases</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.fases} 
+              onChangeText={(value) => handleInputChange("fases", value)} 
+              keyboardType="numeric"
+            />
+          </>
+        )}
+
+        {machineData.type === "Bajo Silueta" && (
+          <>
+            <Text style={styles.label}>Marca / Modelo</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.marcaModelo} 
+              onChangeText={(value) => handleInputChange("marcaModelo", value)} 
+            />
+            <Text style={styles.label}>Refrigerante</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.refrigerantType} 
+              onChangeText={(value) => handleInputChange("refrigerantType", value)} 
+            />
+            <Text style={styles.label}>Fases</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.fases} 
+              onChangeText={(value) => handleInputChange("fases", value)} 
+              keyboardType="numeric"
+            />
+          </>
+        )}
+
+        {machineData.type === "Multiposición" && (
+          <>
+            <Text style={styles.label}>Marca / Modelo</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.marcaModelo} 
+              onChangeText={(value) => handleInputChange("marcaModelo", value)} 
+            />
+            <Text style={styles.label}>Refrigerante</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.refrigerantType} 
+              onChangeText={(value) => handleInputChange("refrigerantType", value)} 
+            />
+            <Text style={styles.label}>Fases</Text>
+            <TextInput 
+              style={styles.input} 
+              value={machineData.fases} 
+              onChangeText={(value) => handleInputChange("fases", value)} 
+              keyboardType="numeric"
+            />
+          </>
+        )}
+
         <Text style={styles.label}>Fabricante</Text>
         <TextInput 
           style={styles.input} 
@@ -410,19 +629,182 @@ const NewAirScreen = () => {
           maxLength={50}
         />
       </ScrollView>
-
     </View>
   );
-
+  
+  const getResumenErrores = (data) => {
+    const errores = [];
+  
+    // Campos comunes
+    if (!data.name) errores.push("Falta el nombre de la máquina");
+    if (!data.type) errores.push("Falta seleccionar el tipo de máquina");
+    if (!data.sucursalNombre) errores.push("Falta seleccionar una sucursal");
+    if (!data.sectorNombre) errores.push("Falta seleccionar un sector");
+  
+    // Por tipo de máquina
+    switch (data.type) {
+      case "Aire Acondicionado":
+        if (!data.coolingCapacity) errores.push("Falta la capacidad de enfriamiento");
+        if (!data.heatingCapacity) errores.push("Falta la capacidad de calefacción");
+        if (!data.refrigerantType) errores.push("Falta el tipo de refrigerante");
+        break;
+  
+      case "Cabina de Pintura":
+        if (!data.filtrosTecho) errores.push("Faltan los filtros de techo");
+        if (!data.filtrosPiso) errores.push("Faltan los filtros de piso");
+        if (!data.moduloIgnicion) errores.push("Falta el módulo de ignición");
+        if (!data.motorExtraccion) errores.push("Falta el motor de extracción");
+        if (!data.motorRecirculacion) errores.push("Falta el motor de recirculación");
+        break;
+  
+      case "Caldera":
+        if (!data.marcaModelo) errores.push("Falta la marca/modelo");
+        if (!data.cantidadRadiadores) errores.push("Faltan los radiadores");
+        if (!data.cantidadColectores) errores.push("Faltan los colectores");
+        if (!data.dual) errores.push("Falta especificar si es dual");
+        if (!data.tirajeForzado) errores.push("Falta especificar el tiraje forzado");
+        break;
+  
+      case "Compresor de Aire":
+        if (!data.motorElectrico) errores.push("Falta el motor eléctrico");
+        if (!data.correa) errores.push("Falta la correa");
+        if (!data.purgador) errores.push("Falta indicar si tiene purgador");
+        if (!data.tipoAceite) errores.push("Falta el tipo de aceite");
+        break;
+  
+      case "Aire Roof Top":
+        if (!data.marcaModelo) errores.push("Falta la marca/modelo");
+        if (!data.toneladas) errores.push("Faltan las toneladas");
+        break;
+  
+      case "Aire Piso Techo":
+      case "Bajo Silueta":
+      case "Multiposición":
+        if (!data.marcaModelo) errores.push("Falta la marca/modelo");
+        if (!data.refrigerantType) errores.push("Falta el tipo de refrigerante");
+        if (!data.fases) errores.push("Faltan las fases");
+        break;
+    }
+  
+    return errores;
+  };
+  
+  const ResumenTab = () => {
+    const errores = getResumenErrores(machineData);
+  
+    return (
+    <View style={styles.tabContent}>
+      <ScrollView>
+      {errores.length > 0 && (
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ color: "red", fontWeight: "bold" }}>⚠️ Faltan datos:</Text>
+            {errores.map((err, index) => (
+              <Text key={index} style={{ color: "red" }}>• {err}</Text>
+            ))}
+          </View>
+        )}
+        <Text style={styles.label}>Nombre / Modelo:</Text>
+        <Text>{machineData.name}</Text>
+  
+        <Text style={styles.label}>Tipo:</Text>
+        <Text>{machineData.type}</Text>
+  
+        <Text style={styles.label}>Sucursal:</Text>
+        <Text>{machineData.sucursalNombre}</Text>
+  
+        <Text style={styles.label}>Sector:</Text>
+        <Text>{machineData.sectorNombre}</Text>
+  
+        <Text style={styles.label}>Fabricante:</Text>
+        <Text>{machineData.manufacturer}</Text>
+  
+        {machineData.type === "Aire Acondicionado" && (
+          <>
+            <Text style={styles.label}>Enfriamiento:</Text>
+            <Text>{machineData.coolingCapacity} BTU</Text>
+            <Text style={styles.label}>Calefacción:</Text>
+            <Text>{machineData.heatingCapacity} BTU</Text>
+            <Text style={styles.label}>Refrigerante:</Text>
+            <Text>{machineData.refrigerantType}</Text>
+          </>
+        )}
+  
+        {machineData.type === "Cabina de Pintura" && (
+          <>
+            <Text style={styles.label}>Filtros Techo:</Text>
+            <Text>{machineData.filtrosTecho}</Text>
+            <Text style={styles.label}>Filtros Piso:</Text>
+            <Text>{machineData.filtrosPiso}</Text>
+            <Text style={styles.label}>Módulo Ignición:</Text>
+            <Text>{machineData.moduloIgnicion}</Text>
+            <Text style={styles.label}>Motor Extracción:</Text>
+            <Text>{machineData.motorExtraccion}</Text>
+            <Text style={styles.label}>Motor Recirculación:</Text>
+            <Text>{machineData.motorRecirculacion}</Text>
+          </>
+        )}
+  
+        {machineData.type === "Caldera" && (
+          <>
+            <Text style={styles.label}>Marca/Modelo:</Text>
+            <Text>{machineData.marcaModelo}</Text>
+            <Text style={styles.label}>Radiadores:</Text>
+            <Text>{machineData.cantidadRadiadores}</Text>
+            <Text style={styles.label}>Colectores:</Text>
+            <Text>{machineData.cantidadColectores}</Text>
+            <Text style={styles.label}>Dual:</Text>
+            <Text>{machineData.dual}</Text>
+            <Text style={styles.label}>Tiraje Forzado:</Text>
+            <Text>{machineData.tirajeForzado}</Text>
+          </>
+        )}
+  
+        {machineData.type === "Compresor de Aire" && (
+          <>
+            <Text style={styles.label}>Motor Eléctrico:</Text>
+            <Text>{machineData.motorElectrico}</Text>
+            <Text style={styles.label}>Correa:</Text>
+            <Text>{machineData.correa}</Text>
+            <Text style={styles.label}>Purgador:</Text>
+            <Text>{machineData.purgador}</Text>
+            <Text style={styles.label}>Tipo de Aceite:</Text>
+            <Text>{machineData.tipoAceite}</Text>
+          </>
+        )}
+  
+        {machineData.type === "Aire Roof Top" && (
+          <>
+            <Text style={styles.label}>Marca/Modelo:</Text>
+            <Text>{machineData.marcaModelo}</Text>
+            <Text style={styles.label}>Toneladas:</Text>
+            <Text>{machineData.toneladas}</Text>
+          </>
+        )}
+  
+        {["Aire Piso Techo", "Bajo Silueta", "Multiposición"].includes(machineData.type) && (
+          <>
+            <Text style={styles.label}>Marca/Modelo:</Text>
+            <Text>{machineData.marcaModelo}</Text>
+            <Text style={styles.label}>Refrigerante:</Text>
+            <Text>{machineData.refrigerantType}</Text>
+            <Text style={styles.label}>Fases:</Text>
+            <Text>{machineData.fases}</Text>
+          </>
+        )}
+      </ScrollView>
+    </View>
+     )}
+  
+  
   const renderScene = SceneMap({
     general: GeneralTab,
     details: DetailsTab,
+    preview: ResumenTab,
   });
+  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Nueva Máquina</Text>
-      
       <View style={styles.userSection}>
         <UserSearchComponent />
         {selectedUser && (
@@ -448,77 +830,19 @@ const NewAirScreen = () => {
         )}
       />
 
-      {isSubmitting ? (
-        <ActivityIndicator size="large" color="#1D1936" style={styles.submitButton} />
-      ) : (
-        <Button 
-          title="Crear Máquina" 
-          onPress={handleSubmit} 
-          color="#1D1936" 
-          style={{ backgroundColor: "#1D1936" }}
-          disabled={!selectedUser}
-        />
+      {index === 2 && (
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          {isSubmitting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Crear Máquina</Text>
+          )}
+        </TouchableOpacity>
       )}
+
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#1D1936",
-    textAlign: "center",
-  },
-  label: {
-    fontSize: 16,
-    marginTop: 16,
-    color: "#333",
-    fontWeight: "600",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-    backgroundColor: "#fff",
-    fontSize: 16,
-  },
-  tabContent: {
-    flex: 1,
-    padding: 16,
-  },
-  userSection: {
-    marginBottom: 16,
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 8,
-    elevation: 2,
-  },
-  userInfoContainer: {
-    marginTop: 8,
-  },
-  userInfo: {
-    fontSize: 14,
-    color: "#555",
-  },
-  submitButton: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  selectedInfo: {
-    fontSize: 14,
-    color: "#1D1936",
-    marginTop: 4,
-    fontStyle: "italic",
-  },
-});
 
 export default NewAirScreen;

@@ -75,4 +75,17 @@ export default StyleSheet.create({
         marginTop: 5,
         borderRadius: 5,
       },
+      button: {
+        backgroundColor: '#1D1936',
+        borderRadius: 8,
+        padding: 16,
+        alignItems: 'center',
+        marginVertical: 12,
+      },
+      buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
+      },
+      
 });

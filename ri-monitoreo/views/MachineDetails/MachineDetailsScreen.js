@@ -369,6 +369,7 @@ Tipo: ${machineInfo.type || 'No disponible'}
 
   return (
     <ScrollView style={styles.scrollContainer}> 
+    <View>
       <View style={styles.container}>
         
         {/* Información del Modelo */}
@@ -380,19 +381,16 @@ Tipo: ${machineInfo.type || 'No disponible'}
           <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
           <Text style={styles.title}>Numero de identificación :</Text>
           <Text style={styles.installationDate}>{machineInfo.serialNumber ||  'No disponible'}</Text>
-          <Text style={styles.title}>Frigorías:</Text>
+  
+          {/* Información Adicional por Tipo de Máquina */}
+          {machineInfo.type === "Aire Acondicionado" && (
+            <>
+            <Text style={styles.title}>Frigorías:</Text>
           <Text style={styles.installationDate}> {machine.coolingCapacity ||  'No disponible'}</Text>
           <Text style={styles.title}>Calorias:</Text>
           <Text style={styles.installationDate}> {machine.heatingCapacity ||  'No disponible'}</Text>
           <Text style={styles.title}>Refrigerante:</Text>
           <Text style={styles.installationDate}> {machine.condensadora ||  'No disponible'}</Text>
-          
-        </View>
-
-
-          {/* Información Adicional por Tipo de Máquina */}
-          {machineInfo.type === "Aire Acondicionado" && (
-            <>
               <Text style={styles.title}>Capacidad (Frigorías):</Text>
               <Text style={styles.installationDate}>{machineInfo.historyMaintenance.frigorias || 'No disponible'}</Text>
               <Text style={styles.title}>Tipo de Gas:</Text>
@@ -429,6 +427,8 @@ Tipo: ${machineInfo.type || 'No disponible'}
 
           {/* Agrega más condiciones para otros tipos de máquinas */}
         </View>
+
+
         {/* Información del Mantenimiento */}
         <View style={styles.card}>
           {machine?.maintenanceHistory?.[0] ? (
@@ -488,6 +488,7 @@ Tipo: ${machineInfo.type || 'No disponible'}
           <Ionicons name="print-outline" size={20} color="#fff" />
           <Text style={styles.buttonText}>Imprimir</Text>
         </TouchableOpacity>
+      </View>
 
         {/* Modal para Seleccionar Opción de Impresión */}
         <Modal

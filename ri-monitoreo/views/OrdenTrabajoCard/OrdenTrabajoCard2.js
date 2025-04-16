@@ -185,7 +185,7 @@ const OrdenTrabajoCard2 = ({ trabajo }) => {
         <Tabs.Tab name="Herramientas">
           <Tabs.ScrollView
             contentContainerStyle={{
-              minHeight: 400,
+              minHeight: 300,
               flexGrow: 1,
               padding: 16,
               backgroundColor: 'white',
@@ -194,28 +194,27 @@ const OrdenTrabajoCard2 = ({ trabajo }) => {
             <Text style={styles.label}>Herramientas:</Text>
             <View style={{flex:1,alignContent:"center",alignItems:"center"}}>
             {herramientasCompletadas ? (
-  <View style={styles.resultContainer}>
-  <Ionicons name="checkmark-circle" size={40} color="green" />
-  <Text style={styles.successText}>Herramientas Completadas</Text>
-</View>
-) : (
-  Array.isArray(trabajo?.herramientas) && trabajo.herramientas.length > 0 ? (
-    trabajo.herramientas.map((herramienta, index) => (
-      <View key={`${herramienta.nombre}-${index}`} style={{ flexDirection: "row", alignItems: "center", paddingVertical: 4 }}>
-        <Checkbox.Android
-          status={herramienta.completada ? 'checked' : 'unchecked'}
-          onPress={() => toggleHerramienta(index)}
-          color="#4B0082"
-          uncheckedColor="#8F9295"
-        />
-        <Text style={styles.herramientaText}>{herramienta.nombre}</Text>
-      </View>
-    ))
-  ) : (
-    <Text style={styles.value}>No hay herramientas asignadas</Text>
-  )
-)}
-
+                <View style={styles.resultContainer}>
+                <Ionicons name="checkmark-circle" size={40} color="green" />
+                <Text style={styles.successText}>Herramientas Completadas</Text>
+              </View>
+              ) : (
+                Array.isArray(trabajo?.herramientas) && trabajo.herramientas.length > 0 ? (
+                  trabajo.herramientas.map((herramienta, index) => (
+                    <View key={`${herramienta.nombre}-${index}`} style={{ flexDirection: "row", alignItems: "center", paddingVertical: 4 }}>
+                      <Checkbox.Android
+                        status={herramienta.completada ? 'checked' : 'unchecked'}
+                        onPress={() => toggleHerramienta(index)}
+                        color="#4B0082"
+                        uncheckedColor="#8F9295"
+                      />
+                      <Text style={styles.herramientaText}>{herramienta.nombre}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.value}>No hay herramientas asignadas</Text>
+                )
+              )}
             </View>
           </Tabs.ScrollView>
         </Tabs.Tab>

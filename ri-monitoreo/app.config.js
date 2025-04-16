@@ -2,7 +2,7 @@ export default ({ config }) => ({
   expo: {
     name: "Ri-monitoreo",
     slug: "ri",
-    version: "1.0.0",
+    version: "1.1.0",
     scheme: "rosenstein",
     orientation: "portrait",
     icon: "./assets/logo.png",
@@ -28,6 +28,7 @@ export default ({ config }) => ({
     },
     ios: {
       bundleIdentifier: "com.riapp.ios",
+      buildNumber: "11",
       "icon": "./assets/icon.png",
       supportsTablet: true,
       infoPlist: {
