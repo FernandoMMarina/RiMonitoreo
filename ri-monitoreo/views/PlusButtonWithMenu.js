@@ -128,6 +128,12 @@ const PlusButtonWithMenu = () => {
                 <Text style={{ fontSize: 13 }}>Hoja de Trabajo</Text>
               </View>
             </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('CotizationForm')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="clipboard-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Cotizacion</Text>
+              </View>
+            </MenuOption>
           </>
       </MenuOptions>
     </Menu>

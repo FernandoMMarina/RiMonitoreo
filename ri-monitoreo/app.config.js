@@ -3,22 +3,21 @@ export default ({ config }) => ({
     name: "Ri-monitoreo",
     slug: "ri",
     version: "1.1.0",
-    scheme: "rosenstein",
+    scheme: "rosenstein",  // Keep only one scheme definition
     orientation: "portrait",
     icon: "./assets/logo.png",
-    backgroundColor: "#1D1936",
     userInterfaceStyle: "light",
-    "plugins": [
+    plugins: [
       [
         "react-native-vision-camera",
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
           "enableCodeScanner": true,
-          // optionally, if you want to record audio:
           "enableMicrophonePermission": true,
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
-      ]
+      ],
+      "expo-system-ui"  // Add this plugin to handle background colors
     ],
     splash: {
       image: "./assets/logo.png",
@@ -28,14 +27,14 @@ export default ({ config }) => ({
     },
     ios: {
       bundleIdentifier: "com.riapp.ios",
-      buildNumber: "11",
-      "icon": "./assets/icon.png",
+      icon: "./assets/icon.png",
       supportsTablet: true,
+      backgroundColor: "#1D1936",  // Move this here if you need iOS-specific background color
       infoPlist: {
         NSCameraUsageDescription: "Esta aplicación necesita acceso a la cámara para escanear códigos QR.",
         UIBackgroundModes: ["fetch", "remote-notification"],
-        NSUserTrackingUsageDescription:
-          "Este identificador se utilizará para enviarte notificaciones personalizadas.",
+        ITSAppUsesNonExemptEncryption: false,
+        NSUserTrackingUsageDescription: "Este identificador se utilizará para enviarte notificaciones personalizadas.",
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: ["rosenstein"]
@@ -87,15 +86,13 @@ export default ({ config }) => ({
       favicon: "./assets/favicon.png"
     },
     extra: {
-      apiUrl:
-        process.env.NODE_ENV === "production"
-          ? "https://rosensteininstalaciones.com.ar/api"
-          : "http://localhost:5000/api",
+      apiUrl: process.env.NODE_ENV === "production"
+        ? "https://rosensteininstalaciones.com.ar/api"
+        : "http://localhost:5000/api",
       eas: {
         projectId: "189830c1-cebf-44db-8a55-581f6004700b"
       }
     },
-    scheme: "rosenstein",
     platforms: ["ios", "android"]
   }
 });

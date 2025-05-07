@@ -21,10 +21,12 @@ import NotificationView2 from './views/NotificationView2/NotificationView2.js';
 import WorkDetailsScreen from './views/WorkDetails/WorkDetailsScreen.js';
 import ClientMachines from './views/ClientMachines/ClientMachines.js';
 import MachineListScreen from './views/MachineListScreen/MachineListScreen';
+import CotizationForm from './views/CotizationForm/CotizationForm.js';
 
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { Provider } from 'react-redux';
+import { Provider as PaperProvider } from 'react-native-paper';
 import store from './redux/store.js';
 import MachineSearchComponent from './views/MachineSearchComponent/machineSearchComponent.js';
 
@@ -231,6 +233,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <MenuProvider>
+      <PaperProvider>
         <Provider store={store}>
           <AnimatedSplash
             isLoaded={isLoaded}
@@ -406,10 +409,16 @@ export default function App() {
                   component={MachineSearchComponent}
                   options={{ headerTitle: "Asignar QR" }}
                 />
+                <Stack.Screen
+                  name="CotizationForm"
+                  component={CotizationForm}
+                  options={{ headerTitle: "Cotizacion" }}
+                />
               </Stack.Navigator>
             </NavigationContainer>
           </AnimatedSplash>
         </Provider>
+        </PaperProvider>
       </MenuProvider>
     </GestureHandlerRootView>
   );
