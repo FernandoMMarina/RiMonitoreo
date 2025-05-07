@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549713986159",
+    "project_id": "ri-monitoreo",
+    "storage_bucket": "ri-monitoreo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549713986159:android:51ba9bc82e2c40ae8d439a",
+        "android_client_info": {
+          "package_name": "com.appri.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfs8AV4s0M8hG4ZPq32ne9CoI0z1Y1HkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
