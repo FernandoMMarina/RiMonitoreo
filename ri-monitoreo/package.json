@@ -87,7 +87,8 @@
     "react-navigation-header-buttons": "^11.2.1",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
-    "undefined": "ios/"
+    "undefined": "ios/",
+    "expo-modules-core": "~2.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
