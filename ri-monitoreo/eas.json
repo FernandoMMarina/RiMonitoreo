@@ -1,11 +1,10 @@
 {
   "cli": {
-    "version": ">= 14.2.0",
+    "version": ">= 3.0.0",
     "appVersionSource": "remote"
   },
   "build": {
     "development": {
-      "workflow": "generic",
       "developmentClient": false,
       "distribution": "internal",
       "ios": {
@@ -14,7 +13,6 @@
       }
     },
     "preview": {
-      "workflow": "generic",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
@@ -25,7 +23,6 @@
       }
     },
     "production": {
-      "workflow": "generic",
       "autoIncrement": true,
       "distribution": "store",
       "android": {
