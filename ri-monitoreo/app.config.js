@@ -1,6 +1,6 @@
 export default ({ config }) => ({
   expo: {
-    name: "Ri-monitoreo",
+    name: "Rimonitoreo",
     slug: "ri",
     version: "1.1.0",
     scheme: "rosenstein",  // Keep only one scheme definition

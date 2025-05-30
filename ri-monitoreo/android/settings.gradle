@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'Ri-monitoreo'
+rootProject.name = 'Rimonitoreo'
 
 dependencyResolutionManagement {
   versionCatalogs {
