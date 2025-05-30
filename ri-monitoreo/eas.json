@@ -5,33 +5,33 @@
   },
   "build": {
     "development": {
+      "workflow": "generic",
       "developmentClient": false,
       "distribution": "internal",
       "ios": {
-        "workflow": "generic",
         "simulator": false,
         "credentialsSource": "remote"
       }
     },
     "preview": {
+      "workflow": "generic",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
       "ios": {
-        "workflow": "generic",
         "simulator": false,
         "credentialsSource": "remote"
       }
     },
     "production": {
+      "workflow": "generic",
       "autoIncrement": true,
       "distribution": "store",
       "android": {
         "buildType": "apk"
       },
       "ios": {
-        "workflow": "generic",
         "simulator": false,
         "credentialsSource": "remote"
       }
