@@ -8,6 +8,7 @@ import { fetchUserProfile } from '../../redux/slices/userSlice';
 import styles from './styles';
 import UserView from '../UserView/UserView';
 import OrdenTrabajoCard2 from '../OrdenTrabajoCard/OrdenTrabajoCard2';
+import HojaDeTrabajoTimeline from '../HojaDeTrabajoTimeline/HojaDeTrabajoTimeline';
 import axios from 'axios';
 
 const useTrabajos = (userId) => {
@@ -20,6 +21,7 @@ const useTrabajos = (userId) => {
           `https://rosensteininstalaciones.com.ar/api/trabajos/tecnicos/${userId}`
         );
         setTrabajo(response.data.data || []);
+        console.log(response.data.data)
       } catch (error) {
         console.error('Error al obtener el trabajo:', error);
       }
@@ -38,9 +40,19 @@ const Screen1 = () => {
   const navigation = useNavigation();
   const { height } = useWindowDimensions();
 
-  const { profile, loading, error } = useSelector((state) => state.user);
+  const { profile, loadingProfile, error } = useSelector((state) => state.user);
+  console.log("profile",profile);
   const { machines } = useSelector((state) => state.machines);
   const trabajo = useTrabajos(profile?.id);
+
+  useEffect(() => {
+  console.log("Estado actual del usuario:", profile);
+}, [profile]);
+
+useEffect(() => {
+  console.log("Cargando perfil:", loadingProfile);
+}, [loadingProfile]);
+
 
   useEffect(() => {
     dispatch(fetchUserProfile());
@@ -53,7 +65,7 @@ const Screen1 = () => {
     }
   }, [dispatch, profile?.id]);
 
-  if (loading) {
+  if (loadingProfile) {
     return (
       <View style={[styles.loadingContainer, { height }]}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -91,16 +103,8 @@ const Screen1 = () => {
             navigation={navigation}
           />
         ) : profile?.role === 'technical' || profile?.role === 'admin' ? (
-          <FlatList
-            data={trabajo}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <View style={{ marginBottom: 20 }}>
-                <OrdenTrabajoCard2 trabajo={item} />
-              </View>
-            )}
-            contentContainerStyle={styles.container}
-          />
+          
+            <HojaDeTrabajoTimeline trabajos={trabajo} />
         ) : null}
       </ScrollView>
     </View>

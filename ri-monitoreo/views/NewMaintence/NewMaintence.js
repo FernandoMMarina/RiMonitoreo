@@ -98,7 +98,7 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
       const machineId = await fetchMachineBySerial(serialNumber);
   
       if (machineId) {
-        const token = await AsyncStorage.getItem("token");
+        const token = await AsyncStorage.getItem("accessToken");
   
         const response = await axios.get(
           `https://rosensteininstalaciones.com.ar/api/machines/${machineId}`,
@@ -134,7 +134,7 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
   const onSubmit = async (data) => {
 
     try {
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("accessToken");
       if (!token) {
         Alert.alert("Error", "Usuario no autenticado.");
         return;
@@ -159,14 +159,12 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
           consumoMotorExtraccion: parseFloat(data.consumoMotorExtraccion),
           consumoMotorRecirculador: parseFloat(data.consumoMotorRecirculador),
         }),
-      
         ...(machineType === "caldera" && {
           purgadoRadiadores: data.purgadoRadiadores === "si",
           limpiezaValvulas: data.limpiezaValvulas === "si",
           cambioValvulas: data.cambioValvulas === "si",
           limpiezaCircuitoAgua: data.limpiezaCircuitoAgua === "si",
         }),
-      
         ...(machineType === "compresor_aire" && {
           consumoElectricR: parseFloat(data.consumoElectricR),
           consumoElectricS: parseFloat(data.consumoElectricS),
@@ -192,7 +190,6 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
           capacitor_ventilador: parseFloat(data.capacitor_ventilador),
           refrigerante: data.refrigerante,
         }),        
-      
         ...(machineType === "aire_rooftop" && {
           comp1_ampR: parseFloat(data.comp1_ampR),
           comp1_ampS: parseFloat(data.comp1_ampS),
@@ -255,9 +252,7 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
           multiposicion_caracteristicasForzadores: data.multiposicion_caracteristicasForzadores,
           multiposicion_tensionSolenoide4Way: data.multiposicion_tensionSolenoide4Way,
         }),
-        
-        
-        
+         
       };
       
       console.log("Enviando datos al backend:", formattedData);
@@ -275,18 +270,14 @@ const { control, handleSubmit, setValue, formState: { errors }, reset } = useFor
   
       console.log("Mantenimiento creado, ID:", maintenanceId);
   
-  
-
-// 2. Actualizar la máquina agregando el nuevo mantenimiento a maintenanceHistory
-await axios.put(
-  `https://rosensteininstalaciones.com.ar/api/machines/addMaintenance/${selectedMachine._id}`,
-  { maintenanceId },
-  {
-    headers: { Authorization: `Bearer ${token}` },
-  }
-);
-
-  
+      // 2. Actualizar la máquina agregando el nuevo mantenimiento a maintenanceHistory
+      await axios.put(
+        `https://rosensteininstalaciones.com.ar/api/machines/addMaintenance/${selectedMachine._id}`,
+        { maintenanceId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       Alert.alert("Éxito", "Mantenimiento registrado correctamente.");
       reset();
       setIndex(0);

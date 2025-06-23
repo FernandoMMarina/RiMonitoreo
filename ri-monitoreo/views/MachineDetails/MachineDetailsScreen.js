@@ -4,6 +4,8 @@ import * as Print from 'expo-print';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styles from './styles';
 import axios from 'axios';
+import NumeroSerie from './NumeroSerie';
+import ModeloConInfo from './ModeloConInfo';
 const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 function MachineDetailsScreen({ route }) {
@@ -16,7 +18,7 @@ function MachineDetailsScreen({ route }) {
   const formatDate = (date) => {
     return date ? new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
-      month: 'long',
+      month: 'numeric',
       day: 'numeric'
     }) : 'No disponible';
   };
@@ -96,6 +98,8 @@ function MachineDetailsScreen({ route }) {
   // Mapear tipos a imágenes
   const typeImages = {
     "Aire Acondicionado": require('./3653252.png'),
+    "Aire Acondicionado Multiposición": require('./3653252.png'),
+    "Aire Acondicionado Roof Top": require('./3653252.png'),
     "Caldera": require('./caldera.png'),
     "Refrigerador": require('./refrigerator.png'),
     "AutoElevador":require('./elevador-de-automoviles.png'),
@@ -162,14 +166,14 @@ function MachineDetailsScreen({ route }) {
   const maintenanceStatus = getMaintenanceStatus();
   
   // Construir el mensaje de WhatsApp dinámicamente
-const whatsappMessage = `
+    const whatsappMessage = `
 Hola, necesito agendar un mantenimiento para mi máquina.
 Nombre: ${machineInfo.name || 'No disponible'}
 Número de identificación: ${machineInfo.serialNumber || 'No disponible'}
 Enlace: https://rosensteininstalaciones.com.ar/redirect?serialNumber=${machineInfo.serialNumber}
 Tipo: ${machineInfo.type || 'No disponible'}
 Último mantenimiento: ${machineInfo.lastMaintenance || 'No disponible'}
-`;
+    `;
 
   const generatePDF = async () => {
     const lastMaintenance = machine?.maintenanceHistory?.[0] || {};
@@ -305,6 +309,7 @@ Tipo: ${machineInfo.type || 'No disponible'}
       Alert.alert('Error', 'No se pudo generar el PDF');
     }
   };
+
   // Función para generar PDF de etiqueta "Scan Me"
   const generateScanMePDF = async () => {
     const qrData = JSON.stringify({ machineId: machineInfo.id, name: machineInfo.name });
@@ -373,19 +378,58 @@ Tipo: ${machineInfo.type || 'No disponible'}
       <View style={styles.container}>
         
         {/* Información del Modelo */}
-        <View style={styles.card}>
+        <View style={styles.cardMachine}>
+          <Text style={{alignContent:"flex-start" , fontSize:15, color:"#ffffff",fontWeight:"bold"}}>{machineInfo.name || "No disponible"}</Text>
           <Image source={getImageByType(machine.type)} style={styles.image} />
-          <Text style={styles.title}>Modelo:</Text>
-          <Text style={styles.modelName}>{machineInfo.name}</Text>
-          <Text style={styles.title}>Fecha de Instalación:</Text>
-          <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
-          <Text style={styles.title}>Numero de identificación :</Text>
-          <Text style={styles.installationDate}>{machineInfo.serialNumber ||  'No disponible'}</Text>
-  
+          <View style={{flex:1,alignContent:"center",alignItems:"center"}}>
+            <NumeroSerie serial={machineInfo.serialNumber}/>
+          </View>
+          {console.log(machineInfo.type)}
           {/* Información Adicional por Tipo de Máquina */}
           {machineInfo.type === "Aire Acondicionado" && (
             <>
             <Text style={styles.title}>Frigorías:</Text>
+          <Text style={styles.installationDate}> {machine.coolingCapacity ||  'No disponible'}</Text>
+          <Text style={styles.title}>Calorias:</Text>
+          <Text style={styles.installationDate}> {machine.heatingCapacity ||  'No disponible'}</Text>
+          <Text style={styles.title}>Refrigerante:</Text>
+          <Text style={styles.installationDate}> {machine.condensadora ||  'No disponible'}</Text>
+              <Text style={styles.title}>Capacidad (Frigorías):</Text>
+              <Text style={styles.installationDate}>{machineInfo.frigorias || 'No disponible'}</Text>
+            </>
+          )}
+          {machineInfo.type === "Aire Acondicionado Multiposición" && (
+            <View style={styles.cardInfo}>
+              <Text style={styles.titleGInfo}>Información</Text>
+              <View style={styles.divider} />
+              <View style={{ flexDirection: 'row', gap: 0 }}>
+
+                {/* Columna 1 */}
+                <View style={{ flex: 1,padding:8 }}>
+                  <Text style={styles.titleinfo}>Frigorías:</Text>
+                  <Text style={styles.infocard}>{machine.coolingCapacity || 'No disponible'}</Text>
+                  <Text style={styles.titleinfo}>Calorías:</Text>
+                  <Text style={styles.infocard}>{machine.heatingCapacity || 'No disponible'}</Text>
+                  <Text style={styles.titleinfo}>Refrigerante:</Text>
+                  <Text style={styles.infocard}>{machine.refrigeranteMultiposicion || 'No disponible'}</Text>
+                </View>
+
+                {/* Columna 2 */}
+                <View style={{ flex: 1,padding:8 }}>
+                  <Text style={styles.titleinfo}>IDU (Cantidad):</Text>
+                  <Text style={styles.infocard}>{machineInfo.iduCantidad || 'No disponible'}</Text>
+                  <Text style={styles.titleinfo}>HRU (Cantidad):</Text>
+                  <Text style={styles.infocard}>{machineInfo.hruCantidad || 'No disponible'}</Text>
+                  <Text style={styles.titleinfo}>Fecha de Instalación:</Text>
+                  <Text style={styles.installationDate}>{formatDate(machineInfo.installationDate)}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+           {machineInfo.type === "Aire Acondicionado Roof Top" && (
+            <>
+          <Text style={styles.title}>Frigorías:</Text>
           <Text style={styles.installationDate}> {machine.coolingCapacity ||  'No disponible'}</Text>
           <Text style={styles.title}>Calorias:</Text>
           <Text style={styles.installationDate}> {machine.heatingCapacity ||  'No disponible'}</Text>

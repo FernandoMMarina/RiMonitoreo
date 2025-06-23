@@ -6,7 +6,7 @@ const API_URL = 'https://rosensteininstalaciones.com.ar/api';
 
 // Función utilitaria para obtener el token
 const getToken = async () => {
-  const token = await AsyncStorage.getItem('token');
+  const token = await AsyncStorage.getItem('accessToken');
   if (!token) {
     throw new Error('Token no encontrado');
   }

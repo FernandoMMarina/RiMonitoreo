@@ -13,16 +13,14 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native-paper';
+import { Dialog} from 'react-native-paper';
 import axios from 'axios';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { ImagePicker } from 'expo';
-import { FileSystem } from 'expo';
 import { Sharing } from 'expo';
 import { Permissions } from 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Note: For SDK 52, we use expo-file-system and expo-sharing instead of react-native-fs
-// PDF viewing would require expo-document-picker or similar
+import { Linking } from 'react-native';
 
 function CotizationForm() {
   const [clientes, setClientes] = useState([]);
@@ -50,11 +48,14 @@ function CotizationForm() {
     const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
     const [sucursalesCliente, setSucursalesCliente] = useState([]);
     const [visibleSucursalMenu, setVisibleSucursalMenu] = useState(false);
-
+    const [cotizacionId, setCotizacionId] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [previewData, setPreviewData] = useState(null);
+    const [validacionResumen, setValidacionResumen] = useState({ esValido: true, camposFaltantes: [] });
     const SUCURSAL_MANUAL_ID = "000000000000000000000000";
   
 
-  const { control, handleSubmit, setValue, watch } = useForm({
+  const { control, handleSubmit, setValue,getValues, watch } = useForm({
     defaultValues: {
       estado: "pendiente",
       nombreTrabajo: "",
@@ -101,7 +102,7 @@ function CotizationForm() {
 
   const cargarClientes = async () => {
       try {
-          const token = await AsyncStorage.getItem('token');
+          const token = await AsyncStorage.getItem('accessToken');
           console.log("CargarClientes",token)
       const response = await axios.get("https://rosensteininstalaciones.com.ar/api/users/users/", {
         headers: { Authorization: `Bearer ${token}` },
@@ -168,30 +169,54 @@ function CotizationForm() {
     }
   };
 
-  const onSubmit = async (data) => {
-    const totalCost =
-      (Number(data.manoDeObra) || 0) +
-      (data.materiales?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
-      (data.equipos?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) +
-        (data.extra?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0));
+const onSubmit = (data) => {
+  const totalCost =
+    (Number(data.manoDeObra) || 0) +
+    (data.materiales?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.equipos?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.extra?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0);
 
-    const totalIva = totalCost * 1.21;
-    setLoading(true);
-    try {
-      await guardarCotizacion(data,totalCost, totalIva);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error("Error:", error);
-      alert("Error", "Ocurrió un error al procesar la cotización.");
-    }
-  };
+  const totalIva = totalCost * 1.21;
 
-  const guardarCotizacion = async (data,totalCost, totalIva) => {
+  const resumen = {
+  Cliente: clienteSeleccionado?.username || data.clienteManual || 'No especificado',
+  CUIT: clienteSeleccionado?.cuit || data.cuitManual || 'No especificado',
+  RazonSocial: clienteSeleccionado?.razonSocial || data.razonSocialManual || 'No especificado',
+  Correo: clienteSeleccionado?.email || data.correoContacto || 'No especificado',
+  Sucursal:
+    sucursalesCliente.find((s) => s._id === sucursalSeleccionada)?.nombre || data.direccionManual || 'No especificado',
+  Máquina:
+    maquinaSeleccionada === 'No se especifica'
+      ? 'No se especifica'
+      : `${maquinas.find((m) => m.id === maquinaSeleccionada)?.name || ''} ${maquinas.find((m) => m.id === maquinaSeleccionada)?.model || ''}`,
+  NombreTrabajo: data.nombreTrabajo || 'No especificado',
+  DescripciónTrabajo: data.descripcionTrabajo || 'No especificado',
+  ManoDeObra: data.manoDeObra || '0',
+  Materiales: data.materiales?.length ? `${data.materiales.length} ítems` : 'Vacío',
+  Equipos: data.equipos?.length ? `${data.equipos.length} ítems` : 'Vacío',
+  Extras: data.extra?.length ? `${data.extra.length} ítems` : 'Vacío',
+  Total: totalCost.toFixed(2),
+  TotalConIVA: totalIva.toFixed(2),
+};
+
+  setPreviewData(resumen);
+  setModalVisible(true);
+};
+
+  const guardarCotizacion = async () => {
+    const data = getValues(); 
     if ((!clienteSeleccionado?._id && !data.clienteManual?.trim()) || !data.nombreTrabajo.trim()) {
       alert("Error", "Debes seleccionar un cliente y especificar un nombre de trabajo.");
       return;
     }
+     const totalCost =
+    (Number(data.manoDeObra) || 0) +
+    (data.materiales?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.equipos?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.extra?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0);
+
+  const totalIva = totalCost * 1.21;
+    console.log(data)
      // Obtenemos la sucursal seleccionada
      const sucursalSeleccionadaObj = clienteSeleccionado?.sucursales?.find(
         (s) => s._id === sucursalSeleccionada
@@ -235,9 +260,9 @@ function CotizationForm() {
       equipos: data.equipos || [],
       extra: data.extra || [],
       manoDeObra: data.manoDeObra || "",
+      descripcionManoObra:data.descripcionManoObra,
       monto: data.monto || 0,
       montoIva: data.montoIva || 0,
-      montoTotal: data.montoTotal || 0,
       totalCost,
       totalIva,
       aprobado: false,
@@ -251,6 +276,10 @@ function CotizationForm() {
           headers: { "Content-Type": "application/json" },
         }
       );
+      console.log(response.data);
+      console.log(response.data.data._id)
+       const nuevaId = response.data.data._id;
+    setCotizacionId(nuevaId);
       alert("Éxito", "La cotización ha sido guardada.");
     } catch (error) {
       console.error("Error al guardar la cotización:", error);
@@ -275,18 +304,34 @@ function CotizationForm() {
     }
   };
 
-  const generarPDF = async (data) => {
+  const generarPDF = async () => {
+    console.log("ID cotizacion",cotizacionId);
+    if (!cotizacionId) {
+      alert("Primero guardá la cotización antes de generar el PDF.");
+      return;
+    }
+
     setLoading(true);
     try {
-      // In a real app, you would send this to your backend to generate the PDF
-      // For demo purposes, we'll create a simple text file as a placeholder
-      const pdfPath = `${FileSystem.documentDirectory}cotizacion.txt`;
-      await FileSystem.writeAsStringAsync(pdfPath, JSON.stringify(data, null, 2));
-      setPdfUri(pdfPath);
-      alert("PDF generado", "Se ha creado un archivo de demostración.");
+      const response = await axios.get(
+        `https://rosensteininstalaciones.com.ar/api/cotizaciones/generarpdf/${cotizacionId}`
+      );
+
+      const urlPDF = response.data.url; // Asegurate de que el backend devuelve esto
+      console.log("Se genero el pdf",response.data.url); 
+      if (urlPDF) {
+        const supported = await Linking.canOpenURL(urlPDF);
+        if (supported) {
+          await Linking.openURL(urlPDF);
+        } else {
+          alert("No se puede abrir el enlace del PDF.");
+        }
+      } else {
+        alert("No se pudo obtener la URL del PDF.");
+      }
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Error", "No se pudo generar el PDF.");
+      console.error("Error al generar PDF:", error);
+      alert("Error al generar el PDF.");
     } finally {
       setLoading(false);
     }
@@ -302,11 +347,118 @@ function CotizationForm() {
     }
   };
 
+  const renderValue = (value) => {
+  return value === 'Vacío' || value === 'No especificado'
+    ? <Text style={{ color: 'red' }}>{value}</Text>
+    : value;
+};
+
+const validarResumen = (resumen) => {
+  const camposCriticos = [
+    'Cliente',
+    'CUIT',
+    'Correo',
+    'Sucursal',
+    'NombreTrabajo',
+    'ManoDeObra',
+    'Total',
+    'TotalConIVA',
+  ];
+  const vacios = camposCriticos.filter((campo) =>
+    resumen[campo] === 'No especificado' || resumen[campo] === 'Vacío'
+  );
+  return {
+    esValido: vacios.length === 0,
+    camposFaltantes: vacios,
+  };
+};
+
+const handlePreview = () => {
+  const data = getValues(); 
+  console.log("---INFO DATA ---",data);
+   const totalCost =
+    (Number(data.manoDeObra) || 0) +
+    (data.materiales?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.equipos?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0) +
+    (data.extra?.reduce((acc, item) => acc + (Number(item.monto) || 0), 0) || 0);
+
+  const totalIva = totalCost * 1.21;
+   // datos del formulario
+  const resumen = {
+    Cliente: clienteSeleccionado?.username || data.clienteManual || 'No especificado',
+    CUIT: clienteSeleccionado?.cuit || data.cuitManual || 'No especificado',
+    RazonSocial: clienteSeleccionado?.razonSocial || data.razonSocialManual || 'No especificado',
+    Correo: clienteSeleccionado?.email || data.correoContacto || 'No especificado',
+    Sucursal: sucursalSeleccionada || SUCURSAL_MANUAL_ID,
+    Máquina: maquinaSeleccionada === "No se especifica" ? null : maquinaSeleccionada,
+    NombreTrabajo: data.nombreTrabajo || 'No especificado',
+    DescripciónTrabajo: data.descripcionTrabajo || 'No especificado',
+    Materiales: data.materiales?.length ? `${data.materiales.length} ítems` : 'Vacío',
+    Equipos: data.equipos?.length ? `${data.equipos.length} ítems` : 'Vacío',
+    Extras: data.extra?.length ? `${data.extra.length} ítems` : 'Vacío',
+    ManoDeObra: data.manoDeObra || 'No especificado',
+    descripcionManoObra: data.descripcionManoObra || 'Vacio',
+    totalCost:totalCost,
+    totalIva:totalIva,
+    montoTotal:totalCost
+  };
+  console.log(resumen)
+  setPreviewData(resumen);
+  const resultado = validarResumen(resumen);
+  setValidacionResumen(resultado);
+  setModalVisible(true); 
+};
+
   return (
     <ScrollView style={styles.container}>
+      <Portal>
+        <Dialog visible={modalVisible} onDismiss={() => setModalVisible(false)}>
+          <Dialog.Title>Resumen de Cotización</Dialog.Title>
+
+          {/* Estado de validación */}
+          {validacionResumen?.esValido ? (
+            <Text style={{ color: 'green', textAlign: 'center', marginVertical: 10 }}>
+              ✅ Todos los campos obligatorios están completos.
+            </Text>
+          ) : (
+            <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>
+              ⚠️ Faltan completar: {validacionResumen?.camposFaltantes?.join(', ')}
+            </Text>
+          )}
+
+          {/* Contenido solo si previewData existe */}
+          {previewData ? (
+            <Dialog.ScrollArea>
+              <ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
+                {Object.entries(previewData).map(([key, value]) => (
+                  <View key={key} style={{ marginBottom: 6 }}>
+                    <Text style={{ fontWeight: 'bold' }}>{key}:</Text>
+                    <Text style={{ color: value === 'No especificado' || value === 'Vacío' ? 'red' : 'black' }}>
+                      {value}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </Dialog.ScrollArea>
+          ) : null}
+
+          {/* Acciones del diálogo */}
+          <Dialog.Actions>
+            <Button onPress={() => setModalVisible(false)}>Cancelar</Button>
+            <Button
+              disabled={!validacionResumen?.esValido}
+              onPress={() => {
+                setModalVisible(false);
+                guardarCotizacion(getValues());
+              }}
+            >
+              Confirmar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       <Card style={styles.card}>
         <Text style={styles.title}>Crear Cotización</Text>
-
         {/* Tipo de Cliente */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Tipo de Cliente:</Text>
@@ -804,7 +956,7 @@ function CotizationForm() {
         {/* Descripcion Mano de Obra */}
         <View style={styles.section}>
           <Controller
-            name="descripcioManoDeObra"
+            name="descripcionManoObra"
             control={control}
             render={({ field: { onChange, value } }) => (
               <TextInput
@@ -1010,21 +1162,28 @@ function CotizationForm() {
         <View style={styles.buttonContainer}>
           <Button 
             mode="contained" 
-            onPress={handleSubmit(onSubmit)}
+            loading={loading}
+            style={styles.actionButton}
+            onPress={() => setModalVisible(true)}>
+            Mostrar resumen
+          </Button>
+          <Button 
+            mode="contained" 
+            onPress={handlePreview}
             loading={loading}
             style={styles.actionButton}
           >
             Guardar Cotización
           </Button>
-
-          <Button 
-            mode="contained" 
-            onPress={() => generarPDF(watch())}
-            loading={loading}
-            style={styles.actionButton}
-          >
-            Generar PDF
-          </Button>
+        
+         <Button 
+          mode="contained" 
+          onPress={generarPDF}
+          loading={loading}
+          style={styles.actionButton}
+        >
+          Generar PDF
+        </Button>
         {/**
           <Button 
             mode="contained" 
@@ -1147,6 +1306,34 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#333',
   },
+modalContainer: {
+  backgroundColor: "white",
+  padding: 20,
+  margin: 20,
+  borderRadius: 10,
+  borderWidth: 1,
+  borderColor: "red",
+},
+modalTitle: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  marginBottom: 10,
+},
+modalItem: {
+  marginBottom: 8,
+},
+sectionTitle: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  marginTop: 16,
+  marginBottom: 8,
+},
+item: {
+  marginBottom: 6,
+  fontSize: 14,
+},
+
+
 });
 
 export default CotizationForm;

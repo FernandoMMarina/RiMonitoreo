@@ -17,7 +17,8 @@ export default ({ config }) => ({
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ],
-      "expo-system-ui"  // Add this plugin to handle background colors
+       "expo-system-ui",
+        "expo-location"
     ],
     splash: {
       image: "./assets/logo.png",

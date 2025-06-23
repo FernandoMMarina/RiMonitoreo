@@ -4,11 +4,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { useDispatch, useSelector } from 'react-redux';
 
 const NotificationView2 = ({ route }) => {
-  const { userId } = route.params; // Recibe el userId como prop
+ 
   const [notifications, setNotifications] = useState([]);
-
+  const { profile, loading, error } = useSelector((state) => state.user);
+  const userId = profile.id;
   // Cargar notificaciones al iniciar
   useEffect(() => {
     const loadNotifications = async () => {

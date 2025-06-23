@@ -5,15 +5,17 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/userSlice';
 import { fetchVisits } from '../../redux/slices/visitsSlice';
 import styles from './styles';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // Componente para mostrar cuando no hay visitas programadas
 const NoVisits = ({ onOpenWhatsApp }) => (
   <View style={styles.card}>
+    <Icon name="calendar-outline" size={48} color="#aaa" style={{ marginBottom: 16 ,textAlign:"center" }} />
     <Text style={styles.message}>No hay ninguna visita programada, ¿agendamos una?</Text>
     <TouchableOpacity
       style={styles.whatsappButton}
       onPress={() =>
-        onOpenWhatsApp('+541141651335', 'Hola, necesito agendar un mantenimiento para mi máquina.')
+        onOpenWhatsApp('+541160596952', 'Hola, necesito agendar un mantenimiento para mi máquina.')
       }
     >
       <Ionicons style={styles.icon} name="logo-whatsapp" color="white" size={25} />
@@ -54,7 +56,7 @@ const UpcomingVisit = ({ visit, onOpenWhatsApp }) => (
     <TouchableOpacity
       style={styles.whatsappButton}
       onPress={() =>
-        onOpenWhatsApp('+541141651335', 'Hola, necesito reprogramar mi visita.')
+        onOpenWhatsApp('+541160596952', 'Hola, necesito reprogramar mi visita.')
       }
     >
       <Ionicons style={styles.icon} name="logo-whatsapp" color="white" size={25} />

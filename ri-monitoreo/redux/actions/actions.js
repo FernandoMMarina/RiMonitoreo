@@ -1,4 +1,6 @@
 import axios from 'axios';
+import axiosAuth from './axiosAuth'; // ruta según ubicación real
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
@@ -8,15 +10,8 @@ export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      console.log(token, 'Actions');
-      if (!token) {
-        throw new Error('Token no encontrado');
-      }
-      const response = await axios.get(`${API_URL}/users/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log(response.data, 'Actions Data');
+      const response = await axiosAuth.get('/users/profile');
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -25,17 +20,12 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
+
 export const fetchMachines = createAsyncThunk(
   'machines/fetchMachines',
   async (idCliente, { rejectWithValue }) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token no encontrado');
-      }
-      const response = await axios.get(`${API_URL}/machines/user/${idCliente}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosAuth.get(`/machines/user/${idCliente}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching machines:', error);
@@ -44,18 +34,12 @@ export const fetchMachines = createAsyncThunk(
   }
 );
 
+
 export const fetchLastMaintenances = createAsyncThunk(
   'maintenances/fetchLastMaintenances',
   async (idCliente, { rejectWithValue }) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token no encontrado');
-      }
-      const response = await axios.get(`${API_URL}/trabajos/clientes/${idCliente}/servicios`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Maintenances",response.data);
+      const response = await axiosAuth.get(`/trabajos/clientes/${idCliente}/servicios`);
       return response.data;
     } catch (error) {
       console.error('Error fetching last maintenances:', error);

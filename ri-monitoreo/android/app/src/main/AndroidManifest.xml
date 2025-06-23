@@ -39,7 +39,6 @@
         <action android:name="android.intent.action.VIEW"/>
         <data android:scheme="https" android:host="rosensteininstalaciones.com.ar" android:pathPrefix="/machine"/>
         <data android:scheme="rosenstein" android:host="machine"/>
-        <data android:scheme="exp+ri"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>

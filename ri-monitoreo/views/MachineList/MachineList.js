@@ -28,7 +28,7 @@ const MachinesList = ({ route }) => {
 
   const fetchMachineDetails = async (machineId) => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
         console.error('Token no encontrado');
         return null;

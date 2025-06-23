@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './styles'; 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View, Text, FlatList,TouchableOpacity,Image } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 // Componente para renderizar cada card
@@ -15,6 +16,10 @@ const MachineCard = ({ type, count, navigation, machines }) => {
     switch (type) {
       case 'Aire Acondicionado':
         return <Image source={require('../../../assets/icons/3653252.png')} style={{ width: 50, height: 50 }} />;
+      case 'Aire Acondicionado Multiposición':
+        return <MaterialCommunityIcons name="snowflake" size={32} color="#00BFFF" />;
+      case 'Aire Acondicionado Roof Top':
+        return <MaterialCommunityIcons name="snowflake" size={32} color="#00BFFF" />;
       case 'Cabina de Pintura':
           return <Image source={require('../../../assets/icons/spray-paint.png')} style={{ width: 50, height: 50 }} />;
       case 'Compresor de Aire':

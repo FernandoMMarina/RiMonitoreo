@@ -87,5 +87,20 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
       },
+      floatingButton: {
+  position: 'absolute',
+  backgroundColor: '#1D1936',
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 6,
+},
+floatingButtonText: {
+  color: '#fff',
+  fontSize: 24,
+  fontWeight: 'bold',
+},
       
 });

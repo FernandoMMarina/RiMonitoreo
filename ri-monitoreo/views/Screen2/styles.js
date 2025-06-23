@@ -380,4 +380,16 @@ export default StyleSheet.create({
         marginTop: 15,
         textAlign: 'center',
       },
+      logoutButton: {
+        backgroundColor: '#D32F2F',
+        padding: 12,
+        borderRadius: 8,
+        marginTop: 20,
+        alignItems: 'center',
+      },
+      logoutButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+      },
+
 });

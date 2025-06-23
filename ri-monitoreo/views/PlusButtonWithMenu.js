@@ -53,7 +53,7 @@ const PlusButtonWithMenu = () => {
       </>
     )}
 
-    {profile?.role !== 'user'  && (
+    {profile?.role === 'technical'  && (
     <Menu>
       <MenuTrigger>
         <View>
@@ -137,7 +137,99 @@ const PlusButtonWithMenu = () => {
           </>
       </MenuOptions>
     </Menu>
-        )}
+    )}
+
+    {profile?.role === 'admin'  && (
+    <Menu>
+      <MenuTrigger>
+        <View>
+          <Ionicons
+            name={profile?.role === 'user' ? 'notifications-outline' : 'add-outline'}
+            color="black"
+            size={30}
+          />
+          {profile?.role === 'user' && unreadCount > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                top: -5,
+                right: -5,
+                backgroundColor: 'red',
+                borderRadius: 10,
+                width: 20,
+                height: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 12 }}>{unreadCount}</Text>
+            </View>
+          )}
+        </View>
+      </MenuTrigger>
+      <MenuOptions
+        optionsContainerStyle={{
+          marginTop: 60,
+          alignSelf: 'flex-end',
+          marginRight: 150,
+          marginLeft:50,
+          width: 350,
+        }}
+      >
+         
+          <>
+            <MenuOption onSelect={() => navigation.navigate('NewUserScreen')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="person-add-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Nuevo Cliente</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('NewAirScreen')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="snow-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Nuevo Equipo</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('AsignarQR')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="qr-code-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Asignar QR</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('NewMaintence')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="clipboard-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Nuevo Mantenimiento</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('NotificationView2')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="notifications-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Notificaciones</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('OrdersList')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="clipboard-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Hoja de Trabajo</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('CotizationForm')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="clipboard-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Cotizacion</Text>
+              </View>
+            </MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('AddTarea')}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons style={{ marginRight: 8 }} name="clipboard-outline" color="black" size={20} />
+                <Text style={{ fontSize: 13 }}>Agregar Tarea</Text>
+              </View>
+            </MenuOption>
+          </>
+      </MenuOptions>
+    </Menu>
+    )}
     </>
   );
 };

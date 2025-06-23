@@ -108,7 +108,7 @@ const OrdenTrabajoCard2 = ({ trabajo }) => {
   
       trabajo.herramientas = nuevasHerramientas;
   
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
   
       const payload = {
         trabajoId: trabajo._id,

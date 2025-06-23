@@ -18,7 +18,7 @@ const UserSearchComponent = () => {
         return;
       }
 
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("accessToken");
       if (!token) {
         Alert.alert("Error", "Usuario no autenticado");
         return;

@@ -263,6 +263,9 @@ export default StyleSheet.create({
           ios:30,
           android:30
         }),
+        marginBottom:Platform.select({
+          ios:30,
+        }),
         textAlign:"center"
       },
       titleMaquinas:{

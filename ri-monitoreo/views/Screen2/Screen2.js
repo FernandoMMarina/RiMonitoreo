@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile } from '../../redux/slices/userSlice';
+import { logoutUser } from '../../redux/actions/authActions'; 
+import { useNavigation } from '@react-navigation/native';
+import { navigationRef } from '../../utils/navigationRef';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logoutSuccess } from '../../redux/slices/authSlice'; // Asegurate de importar esto
+
 import styles from './styles';
 
 const Screen2 = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   // Obtener datos del estado global
   const { profile, loading, error } = useSelector((state) => state.user);
   const username = profile?.username || 'Usuario';
   const email = profile?.email || 'No disponible';
   const currentAddress = profile?.sucursal?.direccion || 'No disponible';
-const direccion = profile?.sucursal?.direccion || {};
+  const direccion = profile?.sucursal?.direccion || {};
 
-console.log("Direccion", direccion);
-
+  console.log("Direccion", direccion);
 
   console.log("Direcion-- ",profile )
   const currentPhone = profile?.telefono || 'No disponible';
@@ -106,6 +112,35 @@ console.log("Direccion", direccion);
 
         {/* Mostrar errores */}
         {error && <Text style={styles.errorText}>{error}</Text>}
+
+       
+<TouchableOpacity
+  style={styles.logoutButton}
+  onPress={async () => {
+    try {
+      await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+      console.log("[LOGOUT] Tokens eliminados");
+
+      dispatch(logoutSuccess()); // Vacía el estado en Redux
+
+      if (navigationRef.isReady()) {
+        navigationRef.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        });
+      } else {
+        console.warn("navigationRef no está listo");
+      }
+    } catch (error) {
+      console.error("Error en logout:", error);
+    }
+  }}
+>
+  <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+</TouchableOpacity>
+
+
+
       </View>
     </ScrollView>
   );

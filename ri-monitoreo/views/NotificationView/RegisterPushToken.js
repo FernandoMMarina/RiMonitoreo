@@ -11,7 +11,7 @@ const RegisterPushToken = () => {
   // Función para obtener el perfil del usuario y registrar el push token
   const registerPushToken = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
         console.error('Token no encontrado en AsyncStorage');
         return;

@@ -19,7 +19,7 @@ const HerramientasTab = ({ trabajo }) => {
     setHerramientas(nuevasHerramientas);
 
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       await axios.put(
         `https://rosensteininstalaciones.com.ar/api/trabajos/marcar-herramienta-especifico`,
         {

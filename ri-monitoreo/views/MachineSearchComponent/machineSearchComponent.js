@@ -30,7 +30,7 @@ const MachineSearchComponent = () => {
     setMachines([]);
     setError(null);
 
-    const token = await AsyncStorage.getItem("token");
+    const token = await AsyncStorage.getItem("accessToken");
     if (!token) {
       Alert.alert("Error", "Usuario no autenticado");
       setLoading(false);
@@ -98,7 +98,7 @@ const MachineSearchComponent = () => {
   }
 
   const assignSerialNumberToMachine = async (serialNumber) => {
-    const token = await AsyncStorage.getItem("token");
+    const token = await AsyncStorage.getItem("accessToken");
 
     if (!token) {
       Alert.alert("Error", "Usuario no autenticado");

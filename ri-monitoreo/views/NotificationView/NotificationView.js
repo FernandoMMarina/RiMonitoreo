@@ -17,7 +17,7 @@ const NotificationView = () => {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         if (token) {
           const response = await axios.get(`${API_URL}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -36,7 +36,7 @@ const NotificationView = () => {
   // Buscar usuarios por nombre y rol
   const searchUsers = async (name, role) => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
         console.error('Token no encontrado');
         return;
@@ -57,7 +57,7 @@ const NotificationView = () => {
   // Enviar notificación de prueba
   const sendNotification = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
         console.error('Token no encontrado');
         return;
